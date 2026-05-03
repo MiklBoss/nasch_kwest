@@ -1,0 +1,499 @@
+<!-- ===================== Index.html ===================== -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <base target="_top">
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Семейная XP Игра</title>
+  <style>
+    :root {
+      --bg: #101827;
+      --card: rgba(255,255,255,0.1);
+      --text: #ffffff;
+      --muted: rgba(255,255,255,0.7);
+      --accent: #9be7ff;
+      --accent2: #ffd166;
+      --good: #7CFF9B;
+      --danger: #ff7c9b;
+      --shadow: 0 18px 60px rgba(0,0,0,0.28);
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top, #25385f, var(--bg));
+      color: var(--text);
+      min-height: 100vh;
+      padding: 18px;
+    }
+
+    .app {
+      max-width: 920px;
+      margin: 0 auto;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 18px;
+    }
+
+    .title {
+      font-size: 28px;
+      font-weight: 800;
+      margin: 0;
+    }
+
+    .subtitle {
+      color: var(--muted);
+      margin: 4px 0 0;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid rgba(255,255,255,0.14);
+      border-radius: 24px;
+      padding: 18px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(10px);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
+      gap: 14px;
+    }
+
+    button, input, select {
+      font: inherit;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 18px;
+      padding: 14px 16px;
+      background: linear-gradient(135deg, var(--accent), #b9ffef);
+      color: #102033;
+      font-weight: 800;
+      cursor: pointer;
+      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
+      transition: transform .12s ease, filter .12s ease;
+      width: 100%;
+    }
+
+    .btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
+    .btn:active { transform: scale(.98); }
+
+    .btn.secondary {
+      background: rgba(255,255,255,0.12);
+      color: var(--text);
+      border: 1px solid rgba(255,255,255,0.18);
+    }
+
+    .btn.quest {
+      min-height: 76px;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .player-card {
+      cursor: pointer;
+      transition: transform .12s ease, border .12s ease;
+    }
+
+    .player-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255,255,255,0.34);
+    }
+
+    .avatar {
+      font-size: 46px;
+      margin-bottom: 8px;
+    }
+
+    .hero-name {
+      font-size: 20px;
+      font-weight: 850;
+      margin: 0 0 4px;
+    }
+
+    .hero-class {
+      color: var(--muted);
+      margin: 0;
+    }
+
+    .form {
+      display: grid;
+      gap: 12px;
+    }
+
+    .field label {
+      display: block;
+      color: var(--muted);
+      margin-bottom: 6px;
+      font-size: 14px;
+    }
+
+    .field input, .field select {
+      width: 100%;
+      padding: 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,0.18);
+      background: rgba(255,255,255,0.1);
+      color: var(--text);
+      outline: none;
+    }
+
+    .field option { color: #111; }
+
+    .stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 16px 0;
+    }
+
+    .stat {
+      background: rgba(255,255,255,0.08);
+      border-radius: 18px;
+      padding: 12px;
+      text-align: center;
+    }
+
+    .stat strong {
+      display: block;
+      font-size: 22px;
+    }
+
+    .stat span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .bar-wrap {
+      background: rgba(255,255,255,0.14);
+      border-radius: 999px;
+      overflow: hidden;
+      height: 20px;
+      margin: 10px 0 18px;
+    }
+
+    .bar {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, var(--good), var(--accent2));
+      border-radius: 999px;
+      transition: width .35s ease;
+    }
+
+    .hidden { display: none; }
+
+    .toast {
+      position: fixed;
+      left: 50%;
+      bottom: 22px;
+      transform: translateX(-50%) translateY(30px);
+      opacity: 0;
+      background: rgba(0,0,0,0.78);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 999px;
+      transition: all .25s ease;
+      pointer-events: none;
+      font-weight: 750;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .magic { --accent: #d8b4fe; --accent2: #f9a8d4; }
+    .blocks { --accent: #86efac; --accent2: #fde68a; }
+    .forest { --accent: #a7f3d0; --accent2: #bef264; }
+    .healer { --accent: #99f6e4; --accent2: #fef08a; }
+  </style>
+</head>
+<body>
+  <div class="app">
+    <div class="header">
+      <div>
+        <h1 class="title">🎮 Семейная XP Игра</h1>
+        <p class="subtitle">Маленькие квесты → XP → уровни → награды</p>
+      </div>
+      <button class="btn secondary" style="max-width: 170px" onclick="showCreate()">+ Герой</button>
+    </div>
+
+    <section id="screenPlayers" class="card">
+      <h2>Выбери героя</h2>
+      <div id="playersGrid" class="grid"></div>
+    </section>
+
+    <section id="screenCreate" class="card hidden">
+      <h2>✨ Создание персонажа</h2>
+      <div class="form">
+        <div class="field">
+          <label>Кто играет?</label>
+          <input id="familyName" placeholder="Например: Миша, Мама, Соня">
+        </div>
+        <div class="field">
+          <label>Имя героя</label>
+          <input id="heroName" placeholder="Например: Благородная Фея">
+        </div>
+        <div class="field">
+          <label>Класс героя</label>
+          <select id="heroClass">
+            <option>🧚 Благородная Фея</option>
+            <option>🐉 Хранительница зверей</option>
+            <option>⛏️ Мастер блоков</option>
+            <option>🧱 Строитель крепостей</option>
+            <option>🌿 Друид-воин</option>
+            <option>🌱 Травница-целительница</option>
+            <option>🧪 Алхимик</option>
+            <option>⚔️ Искатель приключений</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>Стиль мира</label>
+          <select id="theme">
+            <option value="magic">✨ Магия</option>
+            <option value="blocks">⛏️ Блоки</option>
+            <option value="forest">🌿 Лес</option>
+            <option value="healer">🌱 Целительство</option>
+          </select>
+        </div>
+        <button class="btn" onclick="createPlayer()">Создать героя</button>
+        <button class="btn secondary" onclick="showPlayers()">Назад</button>
+      </div>
+    </section>
+
+    <section id="screenHero" class="card hidden">
+      <button class="btn secondary" style="max-width: 160px; margin-bottom: 14px" onclick="showPlayers()">← Назад</button>
+      <div id="heroView"></div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast">+10 XP</div>
+
+  <script>
+    let players = [];
+    let currentPlayer = null;
+
+    const demoMode = typeof google === 'undefined' || !google.script;
+
+    const defaultQuests = {
+      magic: [
+        { title: '🐉 Покормить дракончика', xp: 10 },
+        { title: '✨ Магический порядок', xp: 10 },
+        { title: '🌟 Бонус доброго дела', xp: 20 }
+      ],
+      blocks: [
+        { title: '⛏️ Добыть блок знаний', xp: 10 },
+        { title: '🧱 Построить порядок', xp: 10 },
+        { title: '💎 Редкий квест', xp: 20 }
+      ],
+      forest: [
+        { title: '🌿 Лесная тренировка', xp: 10 },
+        { title: '🦊 Помочь зверьку', xp: 10 },
+        { title: '🍄 Тайная находка', xp: 20 }
+      ],
+      healer: [
+        { title: '🌱 Доброе лечение', xp: 10 },
+        { title: '🧺 Навести уют', xp: 10 },
+        { title: '☀️ Бонус заботы', xp: 20 }
+      ]
+    };
+
+    function serverRun(functionName, ...args) {
+      return new Promise((resolve, reject) => {
+        if (demoMode) {
+          resolve(demoServer(functionName, ...args));
+          return;
+        }
+        google.script.run
+          .withSuccessHandler(resolve)
+          .withFailureHandler(reject)[functionName](...args);
+      });
+    }
+
+    function demoServer(functionName, ...args) {
+      const key = 'familyXpGameDemo';
+      const state = JSON.parse(localStorage.getItem(key) || '{"players":[]}');
+
+      if (functionName === 'getPlayers') return state.players;
+
+      if (functionName === 'savePlayer') {
+        const player = args[0];
+        player.playerId = player.playerId || crypto.randomUUID();
+        player.xp = player.xp || 0;
+        const index = state.players.findIndex(p => p.playerId === player.playerId);
+        if (index >= 0) state.players[index] = player;
+        else state.players.push(player);
+        localStorage.setItem(key, JSON.stringify(state));
+        return { ok: true, playerId: player.playerId };
+      }
+
+      if (functionName === 'addQuestXp') {
+        const [playerId, questTitle, xp] = args;
+        const player = state.players.find(p => p.playerId === playerId);
+        player.xp = Number(player.xp || 0) + Number(xp || 0);
+        localStorage.setItem(key, JSON.stringify(state));
+        return {
+          ok: true,
+          xp: player.xp,
+          level: Math.floor(player.xp / 100) + 1,
+          nextLevelXp: 100 - (player.xp % 100)
+        };
+      }
+    }
+
+    async function loadPlayers() {
+      players = await serverRun('getPlayers');
+      renderPlayers();
+    }
+
+    function showPlayers() {
+      document.getElementById('screenPlayers').classList.remove('hidden');
+      document.getElementById('screenCreate').classList.add('hidden');
+      document.getElementById('screenHero').classList.add('hidden');
+      loadPlayers();
+    }
+
+    function showCreate() {
+      document.getElementById('screenPlayers').classList.add('hidden');
+      document.getElementById('screenCreate').classList.remove('hidden');
+      document.getElementById('screenHero').classList.add('hidden');
+    }
+
+    function avatarFor(theme) {
+      if (theme === 'blocks') return '⛏️';
+      if (theme === 'forest') return '🦊';
+      if (theme === 'healer') return '🌱';
+      return '🐉';
+    }
+
+    function renderPlayers() {
+      const grid = document.getElementById('playersGrid');
+      if (!players.length) {
+        grid.innerHTML = `
+          <div class="card" style="grid-column: 1 / -1; text-align:center">
+            <div style="font-size:54px">✨</div>
+            <h3>Пока героев нет</h3>
+            <p style="color:var(--muted)">Создай первого героя и нажми пару квестов для вау-эффекта.</p>
+            <button class="btn" onclick="showCreate()">Создать первого героя</button>
+          </div>`;
+        return;
+      }
+
+      grid.innerHTML = players.map(player => `
+        <div class="card player-card ${player.theme || 'magic'}" onclick="openHero('${player.playerId}')">
+          <div class="avatar">${avatarFor(player.theme)}</div>
+          <h3 class="hero-name">${escapeHtml(player.heroName)}</h3>
+          <p class="hero-class">${escapeHtml(player.heroClass)}</p>
+          <div class="stats">
+            <div class="stat"><strong>${Number(player.xp || 0)}</strong><span>XP</span></div>
+            <div class="stat"><strong>${Math.floor(Number(player.xp || 0) / 100) + 1}</strong><span>уровень</span></div>
+            <div class="stat"><strong>${escapeHtml(player.familyName || 'Игрок')}</strong><span>игрок</span></div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function createPlayer() {
+      const familyName = document.getElementById('familyName').value.trim();
+      const heroName = document.getElementById('heroName').value.trim();
+      const heroClass = document.getElementById('heroClass').value;
+      const theme = document.getElementById('theme').value;
+
+      if (!familyName || !heroName) {
+        showToast('Заполни имя игрока и героя');
+        return;
+      }
+
+      await serverRun('savePlayer', { familyName, heroName, heroClass, theme, xp: 0 });
+      document.getElementById('familyName').value = '';
+      document.getElementById('heroName').value = '';
+      showToast('Герой создан ✨');
+      showPlayers();
+    }
+
+    function openHero(playerId) {
+      currentPlayer = players.find(p => p.playerId === playerId);
+      document.getElementById('screenPlayers').classList.add('hidden');
+      document.getElementById('screenCreate').classList.add('hidden');
+      document.getElementById('screenHero').classList.remove('hidden');
+      renderHero();
+    }
+
+    function renderHero() {
+      const p = currentPlayer;
+      const xp = Number(p.xp || 0);
+      const level = Math.floor(xp / 100) + 1;
+      const progress = xp % 100;
+      const quests = defaultQuests[p.theme || 'magic'];
+
+      document.getElementById('screenHero').className = `card ${p.theme || 'magic'}`;
+      document.getElementById('heroView').innerHTML = `
+        <div style="text-align:center">
+          <div class="avatar">${avatarFor(p.theme)}</div>
+          <h2 style="margin:0">${escapeHtml(p.heroName)}</h2>
+          <p style="color:var(--muted); margin-top:6px">${escapeHtml(p.heroClass)} · ${escapeHtml(p.familyName || 'Игрок')}</p>
+        </div>
+
+        <div class="stats">
+          <div class="stat"><strong>${xp}</strong><span>XP</span></div>
+          <div class="stat"><strong>${level}</strong><span>уровень</span></div>
+          <div class="stat"><strong>${100 - progress}</strong><span>до уровня</span></div>
+        </div>
+
+        <p style="color:var(--muted); margin-bottom:6px">Прогресс уровня</p>
+        <div class="bar-wrap"><div class="bar" style="width:${progress}%"></div></div>
+
+        <h3>Квесты сегодня</h3>
+        <div class="grid">
+          ${quests.map(q => `
+            <button class="btn quest" onclick="completeQuest('${escapeAttr(q.title)}', ${q.xp})">
+              <span>${q.title}</span>
+              <strong>+${q.xp} XP</strong>
+            </button>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    async function completeQuest(title, xp) {
+      const result = await serverRun('addQuestXp', currentPlayer.playerId, title, xp);
+      currentPlayer.xp = result.xp;
+      showToast(`+${xp} XP ✨`);
+      renderHero();
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 1300);
+    }
+
+    function escapeHtml(str) {
+      return String(str || '').replace(/[&<>"]/g, s => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'
+      }[s]));
+    }
+
+    function escapeAttr(str) {
+      return String(str || '').replace(/'/g, "&#39;").replace(/"/g, '&quot;');
+    }
+
+    loadPlayers();
+  </script>
+</body>
+</html>
