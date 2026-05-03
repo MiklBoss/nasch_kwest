@@ -1,499 +1,683 @@
-<!-- ===================== Index.html ===================== -->
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="uk">
 <head>
-  <base target="_top">
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Семейная XP Игра</title>
-  <style>
-    :root {
-      --bg: #101827;
-      --card: rgba(255,255,255,0.1);
-      --text: #ffffff;
-      --muted: rgba(255,255,255,0.7);
-      --accent: #9be7ff;
-      --accent2: #ffd166;
-      --good: #7CFF9B;
-      --danger: #ff7c9b;
-      --shadow: 0 18px 60px rgba(0,0,0,0.28);
-    }
-
-    * { box-sizing: border-box; }
-
-    body {
-      margin: 0;
-      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top, #25385f, var(--bg));
-      color: var(--text);
-      min-height: 100vh;
-      padding: 18px;
-    }
-
-    .app {
-      max-width: 920px;
-      margin: 0 auto;
-    }
-
-    .header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 18px;
-    }
-
-    .title {
-      font-size: 28px;
-      font-weight: 800;
-      margin: 0;
-    }
-
-    .subtitle {
-      color: var(--muted);
-      margin: 4px 0 0;
-    }
-
-    .card {
-      background: var(--card);
-      border: 1px solid rgba(255,255,255,0.14);
-      border-radius: 24px;
-      padding: 18px;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(10px);
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(210px, 1fr));
-      gap: 14px;
-    }
-
-    button, input, select {
-      font: inherit;
-    }
-
-    .btn {
-      border: 0;
-      border-radius: 18px;
-      padding: 14px 16px;
-      background: linear-gradient(135deg, var(--accent), #b9ffef);
-      color: #102033;
-      font-weight: 800;
-      cursor: pointer;
-      box-shadow: 0 10px 24px rgba(0,0,0,0.18);
-      transition: transform .12s ease, filter .12s ease;
-      width: 100%;
-    }
-
-    .btn:hover { transform: translateY(-2px); filter: brightness(1.05); }
-    .btn:active { transform: scale(.98); }
-
-    .btn.secondary {
-      background: rgba(255,255,255,0.12);
-      color: var(--text);
-      border: 1px solid rgba(255,255,255,0.18);
-    }
-
-    .btn.quest {
-      min-height: 76px;
-      text-align: left;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .player-card {
-      cursor: pointer;
-      transition: transform .12s ease, border .12s ease;
-    }
-
-    .player-card:hover {
-      transform: translateY(-2px);
-      border-color: rgba(255,255,255,0.34);
-    }
-
-    .avatar {
-      font-size: 46px;
-      margin-bottom: 8px;
-    }
-
-    .hero-name {
-      font-size: 20px;
-      font-weight: 850;
-      margin: 0 0 4px;
-    }
-
-    .hero-class {
-      color: var(--muted);
-      margin: 0;
-    }
-
-    .form {
-      display: grid;
-      gap: 12px;
-    }
-
-    .field label {
-      display: block;
-      color: var(--muted);
-      margin-bottom: 6px;
-      font-size: 14px;
-    }
-
-    .field input, .field select {
-      width: 100%;
-      padding: 14px;
-      border-radius: 16px;
-      border: 1px solid rgba(255,255,255,0.18);
-      background: rgba(255,255,255,0.1);
-      color: var(--text);
-      outline: none;
-    }
-
-    .field option { color: #111; }
-
-    .stats {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 10px;
-      margin: 16px 0;
-    }
-
-    .stat {
-      background: rgba(255,255,255,0.08);
-      border-radius: 18px;
-      padding: 12px;
-      text-align: center;
-    }
-
-    .stat strong {
-      display: block;
-      font-size: 22px;
-    }
-
-    .stat span {
-      color: var(--muted);
-      font-size: 13px;
-    }
-
-    .bar-wrap {
-      background: rgba(255,255,255,0.14);
-      border-radius: 999px;
-      overflow: hidden;
-      height: 20px;
-      margin: 10px 0 18px;
-    }
-
-    .bar {
-      height: 100%;
-      width: 0%;
-      background: linear-gradient(90deg, var(--good), var(--accent2));
-      border-radius: 999px;
-      transition: width .35s ease;
-    }
-
-    .hidden { display: none; }
-
-    .toast {
-      position: fixed;
-      left: 50%;
-      bottom: 22px;
-      transform: translateX(-50%) translateY(30px);
-      opacity: 0;
-      background: rgba(0,0,0,0.78);
-      color: white;
-      padding: 12px 18px;
-      border-radius: 999px;
-      transition: all .25s ease;
-      pointer-events: none;
-      font-weight: 750;
-    }
-
-    .toast.show {
-      transform: translateX(-50%) translateY(0);
-      opacity: 1;
-    }
-
-    .magic { --accent: #d8b4fe; --accent2: #f9a8d4; }
-    .blocks { --accent: #86efac; --accent2: #fde68a; }
-    .forest { --accent: #a7f3d0; --accent2: #bef264; }
-    .healer { --accent: #99f6e4; --accent2: #fef08a; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>⚔️ Сімейний Квест XP</title>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --angelina-color: #a855f7; --angelina-bg: #1a0a2e; --angelina-accent: #e879f9;
+    --svitlana-color: #22c55e; --svitlana-bg: #0a1f0a; --svitlana-accent: #86efac;
+    --mama-color: #f59e0b;    --mama-bg: #1f1508;     --mama-accent: #fcd34d;
+    --papa-color: #3b82f6;    --papa-bg: #0a0f1f;     --papa-accent: #93c5fd;
+    --gold: #fbbf24; --card-radius: 20px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Nunito', sans-serif; background: #0d0d0d; min-height: 100vh; color: #fff; overflow-x: hidden; }
+  body::before {
+    content: ''; position: fixed; inset: 0;
+    background-image:
+      radial-gradient(1px 1px at 20% 30%, rgba(255,255,255,0.4) 0%, transparent 100%),
+      radial-gradient(1px 1px at 80% 10%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 50% 60%, rgba(255,255,255,0.2) 0%, transparent 100%),
+      radial-gradient(1px 1px at 10% 80%, rgba(255,255,255,0.3) 0%, transparent 100%),
+      radial-gradient(1px 1px at 90% 70%, rgba(255,255,255,0.2) 0%, transparent 100%);
+    pointer-events: none; z-index: 0;
+  }
+  .sync-bar { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: transparent; z-index: 999; }
+  .sync-bar.syncing { background: linear-gradient(90deg, transparent, #3b82f6, transparent); animation: syncAnim 1s infinite; }
+  .sync-bar.ok      { background: #22c55e; animation: fadeOut 1s forwards 0.5s; }
+  .sync-bar.error   { background: #ef4444; animation: fadeOut 2s forwards; }
+  @keyframes syncAnim { 0%{background-position:-200px} 100%{background-position:200px} }
+  @keyframes fadeOut  { to { opacity: 0; } }
+  .sync-status { position: fixed; top: 8px; right: 12px; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: rgba(255,255,255,0.3); z-index: 998; transition: color 0.3s; }
+  .sync-status.live { color: #22c55e; } .sync-status.err { color: #ef4444; }
+  .setup-screen { position: fixed; inset: 0; background: #0d0d0d; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .setup-box { max-width: 420px; width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 32px 24px; }
+  .setup-box h2 { font-family: 'Cinzel Decorative', cursive; font-size: 18px; color: var(--gold); margin-bottom: 8px; }
+  .setup-box p { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 20px; line-height: 1.6; }
+  .setup-box input { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; color: #fff; font-family: 'Nunito', sans-serif; font-size: 12px; padding: 12px 14px; margin-bottom: 12px; outline: none; }
+  .setup-box input:focus { border-color: var(--gold); }
+  .setup-box button { width: 100%; background: linear-gradient(135deg, #f59e0b, #fbbf24); border: none; border-radius: 12px; color: #000; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 900; padding: 14px; cursor: pointer; }
+  .setup-note { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 12px; text-align: center; line-height: 1.5; }
+  .header { text-align: center; padding: 36px 20px 10px; position: relative; z-index: 1; }
+  .header h1 { font-family: 'Cinzel Decorative', cursive; font-size: clamp(18px, 5vw, 30px); background: linear-gradient(135deg, #fbbf24, #f59e0b, #fcd34d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 6px; }
+  .header .subtitle { color: #888; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
+  .nav { display: flex; justify-content: center; gap: 6px; padding: 16px 12px 8px; position: relative; z-index: 1; flex-wrap: wrap; }
+  .nav-btn { border: none; border-radius: 50px; padding: 9px 14px; font-family: 'Nunito', sans-serif; font-weight: 800; font-size: 13px; cursor: pointer; transition: all 0.25s; opacity: 0.5; background: rgba(255,255,255,0.08); color: #fff; border: 2px solid transparent; }
+  .nav-btn.active { opacity: 1; transform: scale(1.05); }
+  .nav-btn[data-char="angelina"].active { background: var(--angelina-bg); border-color: var(--angelina-color); color: var(--angelina-accent); }
+  .nav-btn[data-char="svitlana"].active { background: var(--svitlana-bg); border-color: var(--svitlana-color); color: var(--svitlana-accent); }
+  .nav-btn[data-char="mama"].active     { background: var(--mama-bg);     border-color: var(--mama-color);     color: var(--mama-accent); }
+  .nav-btn[data-char="papa"].active     { background: var(--papa-bg);     border-color: var(--papa-color);     color: var(--papa-accent); }
+  .nav-btn[data-char="family"].active   { background: #1a1a1a; border-color: var(--gold); color: var(--gold); }
+  .screen { display: none; padding: 14px; position: relative; z-index: 1; max-width: 500px; margin: 0 auto; }
+  .screen.active { display: block; }
+  .hero-card { border-radius: var(--card-radius); padding: 22px; margin-bottom: 14px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
+  .hero-card.angelina { background: linear-gradient(135deg, var(--angelina-bg), #2d0a4e); border-color: rgba(168,85,247,0.3); }
+  .hero-card.svitlana { background: linear-gradient(135deg, var(--svitlana-bg), #0a3010); border-color: rgba(34,197,94,0.3); }
+  .hero-card.mama     { background: linear-gradient(135deg, var(--mama-bg), #2d1e00);    border-color: rgba(245,158,11,0.3); }
+  .hero-card.papa     { background: linear-gradient(135deg, var(--papa-bg), #0a1535);    border-color: rgba(59,130,246,0.3); }
+  .hero-top { display: flex; align-items: center; gap: 14px; margin-bottom: 16px; }
+  .avatar { width: 60px; height: 60px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; flex-shrink: 0; border: 3px solid rgba(255,255,255,0.2); }
+  .angelina .avatar { background: radial-gradient(circle, #4c1d95, #1a0a2e); border-color: var(--angelina-color); }
+  .svitlana .avatar { background: radial-gradient(circle, #14532d, #0a1f0a); border-color: var(--svitlana-color); }
+  .mama .avatar     { background: radial-gradient(circle, #78350f, #1f1508); border-color: var(--mama-color); }
+  .papa .avatar     { background: radial-gradient(circle, #1e3a8a, #0a0f1f); border-color: var(--papa-color); }
+  .hero-info h2 { font-size: 19px; font-weight: 900; }
+  .hero-info .class { font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; opacity: 0.7; margin-top: 2px; }
+  .hero-info .xp-count { font-size: 26px; font-weight: 900; margin-top: 4px; }
+  .angelina .hero-info .xp-count { color: var(--angelina-accent); }
+  .svitlana .hero-info .xp-count { color: var(--svitlana-accent); }
+  .mama     .hero-info .xp-count { color: var(--mama-accent); }
+  .papa     .hero-info .xp-count { color: var(--papa-accent); }
+  .level-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
+  .level-badge { font-size: 12px; font-weight: 800; padding: 4px 12px; border-radius: 20px; background: rgba(255,255,255,0.1); letter-spacing: 1px; }
+  .next-xp { font-size: 12px; color: rgba(255,255,255,0.5); }
+  .progress-bar { height: 12px; background: rgba(255,255,255,0.08); border-radius: 10px; overflow: hidden; margin-bottom: 6px; }
+  .progress-fill { height: 100%; border-radius: 10px; transition: width 0.8s cubic-bezier(0.34, 1.56, 0.64, 1); position: relative; overflow: hidden; }
+  .progress-fill::after { content: ''; position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent); animation: shimmer 2s infinite; }
+  @keyframes shimmer { to { left: 200%; } }
+  .angelina .progress-fill { background: linear-gradient(90deg, var(--angelina-color), var(--angelina-accent)); }
+  .svitlana .progress-fill { background: linear-gradient(90deg, var(--svitlana-color), var(--svitlana-accent)); }
+  .mama     .progress-fill { background: linear-gradient(90deg, var(--mama-color),     var(--mama-accent)); }
+  .papa     .progress-fill { background: linear-gradient(90deg, var(--papa-color),     var(--papa-accent)); }
+  .section-title { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin: 18px 0 8px; }
+  .quest-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 13px 14px; margin-bottom: 9px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s; user-select: none; -webkit-tap-highlight-color: transparent; }
+  .quest-card:active { transform: scale(0.97); }
+  .quest-card.done { opacity: 0.5; }
+  .quest-card.bonus-type { border-style: dashed; }
+  .angelina .quest-card.bonus-type { border-color: rgba(168,85,247,0.4); }
+  .svitlana .quest-card.bonus-type { border-color: rgba(34,197,94,0.4); }
+  .mama     .quest-card.bonus-type { border-color: rgba(245,158,11,0.4); }
+  .papa     .quest-card.bonus-type { border-color: rgba(59,130,246,0.4); }
+  .quest-icon { font-size: 22px; flex-shrink: 0; width: 36px; text-align: center; }
+  .quest-info { flex: 1; }
+  .quest-name { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .quest-type { font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 600; letter-spacing: 1px; }
+  .quest-check { width: 30px; height: 30px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 15px; flex-shrink: 0; transition: all 0.3s; }
+  .quest-card.done .quest-check { background: #22c55e; border-color: #22c55e; }
+  .streak-display { display: flex; align-items: center; gap: 8px; margin-top: 12px; padding: 10px 14px; background: rgba(255,255,255,0.04); border-radius: 12px; }
+  .streak-display .fire { font-size: 20px; }
+  .streak-display .streak-text { font-size: 13px; font-weight: 700; }
+  .streak-display .streak-num { font-size: 20px; font-weight: 900; color: #f97316; }
+  .extra-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.2); border-radius: 14px; padding: 13px; color: rgba(255,255,255,0.6); font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; margin-bottom: 9px; }
+  .extra-btn:active { transform: scale(0.97); }
+  .extra-btn .arrow { transition: transform 0.3s; font-style: normal; display: inline-block; }
+  .extra-btn.open .arrow { transform: rotate(180deg); }
+  .angelina .extra-btn { border-color: rgba(168,85,247,0.4); color: var(--angelina-accent); }
+  .svitlana .extra-btn { border-color: rgba(34,197,94,0.4);  color: var(--svitlana-accent); }
+  .mama     .extra-btn { border-color: rgba(245,158,11,0.4); color: var(--mama-accent); }
+  .papa     .extra-btn { border-color: rgba(59,130,246,0.4); color: var(--papa-accent); }
+  .extra-panel { display: none; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; overflow: hidden; margin-bottom: 12px; }
+  .extra-panel.open { display: block; }
+  .extra-panel-inner { padding: 8px; }
+  .extra-quest-item { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 10px; cursor: pointer; transition: background 0.15s; -webkit-tap-highlight-color: transparent; }
+  .extra-quest-item:active { background: rgba(255,255,255,0.08); }
+  .extra-quest-icon { font-size: 20px; width: 32px; text-align: center; flex-shrink: 0; }
+  .extra-quest-name { flex: 1; font-size: 13px; font-weight: 700; }
+  .extra-quest-xp { font-size: 13px; font-weight: 900; padding: 4px 10px; border-radius: 8px; background: rgba(255,255,255,0.06); flex-shrink: 0; }
+  .extra-loading { text-align: center; padding: 20px; font-size: 12px; color: rgba(255,255,255,0.3); font-weight: 700; letter-spacing: 1px; }
+  .rewards-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 9px; margin-top: 8px; }
+  .reward-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 12px; text-align: center; transition: all 0.2s; }
+  .reward-card.unlocked { border-color: var(--gold); background: rgba(251,191,36,0.08); }
+  .reward-card .reward-level { font-size: 11px; font-weight: 800; letter-spacing: 1px; color: rgba(255,255,255,0.4); margin-bottom: 5px; }
+  .reward-card.unlocked .reward-level { color: var(--gold); }
+  .reward-card .reward-icon { font-size: 26px; margin-bottom: 5px; }
+  .reward-card .reward-name { font-size: 12px; font-weight: 700; }
+  .reset-btn { display: block; width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); border-radius: 12px; padding: 12px; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 18px; letter-spacing: 1px; }
+  .family-hero { background: linear-gradient(135deg, #1a1008, #0d0d0d); border: 1px solid rgba(251,191,36,0.2); border-radius: var(--card-radius); padding: 22px; margin-bottom: 14px; text-align: center; }
+  .family-title { font-family: 'Cinzel Decorative', cursive; font-size: 15px; color: var(--gold); margin-bottom: 14px; }
+  .leaderboard { list-style: none; }
+  .lb-item { display: flex; align-items: center; gap: 10px; padding: 11px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .lb-item:last-child { border-bottom: none; }
+  .lb-rank { font-size: 18px; width: 28px; text-align: center; flex-shrink: 0; }
+  .lb-avatar { font-size: 22px; width: 36px; text-align: center; flex-shrink: 0; }
+  .lb-name { flex: 1; font-weight: 700; font-size: 14px; }
+  .lb-name small { display: block; font-size: 11px; color: rgba(255,255,255,0.4); font-weight: 600; }
+  .lb-xp { font-size: 17px; font-weight: 900; color: var(--gold); }
+  .boss-card { background: linear-gradient(135deg, #1a0a0a, #1a1008); border: 1px solid rgba(239,68,68,0.3); border-radius: var(--card-radius); padding: 18px; margin-bottom: 14px; }
+  .boss-title { font-size: 11px; letter-spacing: 2px; text-transform: uppercase; color: #ef4444; font-weight: 800; margin-bottom: 8px; }
+  .boss-name  { font-size: 20px; font-weight: 900; margin-bottom: 12px; }
+  .boss-progress { display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 7px; }
+  .boss-bar { height: 13px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden; }
+  .boss-fill { height: 100%; background: linear-gradient(90deg, #ef4444, #f97316); border-radius: 10px; transition: width 0.8s; }
+  .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-80px); background: #1a1a1a; border: 1px solid rgba(255,255,255,0.15); border-radius: 50px; padding: 11px 22px; font-size: 14px; font-weight: 700; color: #fff; z-index: 1000; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); white-space: nowrap; box-shadow: 0 8px 32px rgba(0,0,0,0.5); pointer-events: none; }
+  .toast.show { transform: translateX(-50%) translateY(0); }
+  .xp-burst { position: fixed; font-size: 26px; font-weight: 900; pointer-events: none; z-index: 999; animation: burst 1s forwards; text-shadow: 0 0 20px currentColor; }
+  @keyframes burst { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-80px) scale(1.5)} }
+  .pb { padding-bottom: 40px; }
+</style>
 </head>
 <body>
-  <div class="app">
-    <div class="header">
-      <div>
-        <h1 class="title">🎮 Семейная XP Игра</h1>
-        <p class="subtitle">Маленькие квесты → XP → уровни → награды</p>
-      </div>
-      <button class="btn secondary" style="max-width: 170px" onclick="showCreate()">+ Герой</button>
-    </div>
 
-    <section id="screenPlayers" class="card">
-      <h2>Выбери героя</h2>
-      <div id="playersGrid" class="grid"></div>
-    </section>
+<div class="sync-bar" id="sync-bar"></div>
+<div class="sync-status" id="sync-status">●</div>
 
-    <section id="screenCreate" class="card hidden">
-      <h2>✨ Создание персонажа</h2>
-      <div class="form">
-        <div class="field">
-          <label>Кто играет?</label>
-          <input id="familyName" placeholder="Например: Миша, Мама, Соня">
-        </div>
-        <div class="field">
-          <label>Имя героя</label>
-          <input id="heroName" placeholder="Например: Благородная Фея">
-        </div>
-        <div class="field">
-          <label>Класс героя</label>
-          <select id="heroClass">
-            <option>🧚 Благородная Фея</option>
-            <option>🐉 Хранительница зверей</option>
-            <option>⛏️ Мастер блоков</option>
-            <option>🧱 Строитель крепостей</option>
-            <option>🌿 Друид-воин</option>
-            <option>🌱 Травница-целительница</option>
-            <option>🧪 Алхимик</option>
-            <option>⚔️ Искатель приключений</option>
-          </select>
-        </div>
-        <div class="field">
-          <label>Стиль мира</label>
-          <select id="theme">
-            <option value="magic">✨ Магия</option>
-            <option value="blocks">⛏️ Блоки</option>
-            <option value="forest">🌿 Лес</option>
-            <option value="healer">🌱 Целительство</option>
-          </select>
-        </div>
-        <button class="btn" onclick="createPlayer()">Создать героя</button>
-        <button class="btn secondary" onclick="showPlayers()">Назад</button>
-      </div>
-    </section>
-
-    <section id="screenHero" class="card hidden">
-      <button class="btn secondary" style="max-width: 160px; margin-bottom: 14px" onclick="showPlayers()">← Назад</button>
-      <div id="heroView"></div>
-    </section>
+<div class="setup-screen" id="setup-screen">
+  <div class="setup-box">
+    <h2>⚙️ Підключення</h2>
+    <p>Вставте URL вашого Google Apps Script Web App. Його ви отримаєте після Deploy → New deployment.</p>
+    <input type="text" id="script-url-input" placeholder="https://script.google.com/macros/s/.../exec" />
+    <button onclick="saveScriptUrl()">🚀 Підключити та запустити</button>
+    <div class="setup-note">URL зберігається локально на цьому пристрої.<br>Кожен член сім'ї вводить його один раз.</div>
   </div>
+</div>
 
-  <div id="toast" class="toast">+10 XP</div>
+<div class="header">
+  <h1>⚔️ Сімейний Квест</h1>
+  <div class="subtitle">Обери свого героя</div>
+</div>
 
-  <script>
-    let players = [];
-    let currentPlayer = null;
+<nav class="nav">
+  <button class="nav-btn active" data-char="angelina" onclick="showScreen('angelina')">🧙‍♀️ Ангеліна</button>
+  <button class="nav-btn" data-char="svitlana"  onclick="showScreen('svitlana')">⛏️ Світлана</button>
+  <button class="nav-btn" data-char="mama"      onclick="showScreen('mama')">🌿 Мама</button>
+  <button class="nav-btn" data-char="papa"      onclick="showScreen('papa')">🛡️ Тато</button>
+  <button class="nav-btn" data-char="family"    onclick="showScreen('family')">🏰 Сім'я</button>
+</nav>
 
-    const demoMode = typeof google === 'undefined' || !google.script;
+<!-- ANGELINA -->
+<div class="screen active angelina" id="screen-angelina">
+  <div class="hero-card angelina">
+    <div class="hero-top">
+      <div class="avatar">🧙‍♀️</div>
+      <div class="hero-info">
+        <h2>Ангеліна</h2>
+        <div class="class">✨ Чарівниця Звірів</div>
+        <div class="xp-count"><span id="a-xp">0</span> XP</div>
+      </div>
+    </div>
+    <div class="level-row">
+      <div class="level-badge">⚡ Рівень <span id="a-level">1</span></div>
+      <div class="next-xp">до наст. рівня: <span id="a-next">100</span> XP</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="a-bar" style="width:0%"></div></div>
+    <div class="streak-display">
+      <div class="fire">🔥</div><div class="streak-text">Серія днів:</div>
+      <div class="streak-num" id="a-streak">0</div>
+    </div>
+  </div>
+  <div class="section-title">📋 Щоденні квести</div>
+  <div class="quest-card" id="aq0" onclick="toggleQuest('a',0,10,'🐾',this)">
+    <div class="quest-icon">🐾</div>
+    <div class="quest-info"><div class="quest-name">10 хвилин порядку</div><div class="quest-type">DAILY · 10 XP</div></div>
+    <div class="quest-check" id="aq0-check">○</div>
+  </div>
+  <div class="quest-card" id="aq1" onclick="toggleQuest('a',1,10,'📚',this)">
+    <div class="quest-icon">📚</div>
+    <div class="quest-info"><div class="quest-name">Уроки без нагадувань</div><div class="quest-type">DAILY · 10 XP</div></div>
+    <div class="quest-check" id="aq1-check">○</div>
+  </div>
+  <div class="quest-card bonus-type" id="aq2" onclick="toggleQuest('a',2,20,'⭐',this)">
+    <div class="quest-icon">⭐</div>
+    <div class="quest-info"><div class="quest-name">Зробила сама, без нагадування</div><div class="quest-type">БОНУС · 20 XP</div></div>
+    <div class="quest-check" id="aq2-check">○</div>
+  </div>
+  <button class="extra-btn" id="extra-btn-a" onclick="toggleExtraPanel('a')">➕ Квест на вибір <i class="arrow">▾</i></button>
+  <div class="extra-panel" id="extra-panel-a"><div class="extra-panel-inner" id="extra-list-a"><div class="extra-loading">ЗАВАНТАЖЕННЯ...</div></div></div>
+  <div class="section-title">📅 Тижнева місія</div>
+  <div class="quest-card bonus-type" id="aq3" onclick="toggleQuest('a',3,50,'🦄',this)">
+    <div class="quest-icon">🦄</div>
+    <div class="quest-info"><div class="quest-name">Завершити великий блок справ</div><div class="quest-type">WEEKLY · 50 XP</div></div>
+    <div class="quest-check" id="aq3-check">○</div>
+  </div>
+  <div class="section-title">🏆 Нагороди</div>
+  <div class="rewards-grid">
+    <div class="reward-card" id="ar0"><div class="reward-level">РІВЕНЬ 3</div><div class="reward-icon">🍿</div><div class="reward-name">Кіно на вибір</div></div>
+    <div class="reward-card" id="ar1"><div class="reward-level">РІВЕНЬ 5</div><div class="reward-icon">🎲</div><div class="reward-name">Настільна гра</div></div>
+    <div class="reward-card" id="ar2"><div class="reward-level">РІВЕНЬ 8</div><div class="reward-icon">🛍️</div><div class="reward-name">Шопінг на 20€</div></div>
+    <div class="reward-card" id="ar3"><div class="reward-level">РІВЕНЬ 10</div><div class="reward-icon">🎡</div><div class="reward-name">Поїздка на вибір</div></div>
+  </div>
+  <button class="reset-btn" onclick="resetDay('a')">🔄 Новий день — скинути квести</button>
+  <div class="pb"></div>
+</div>
 
-    const defaultQuests = {
-      magic: [
-        { title: '🐉 Покормить дракончика', xp: 10 },
-        { title: '✨ Магический порядок', xp: 10 },
-        { title: '🌟 Бонус доброго дела', xp: 20 }
-      ],
-      blocks: [
-        { title: '⛏️ Добыть блок знаний', xp: 10 },
-        { title: '🧱 Построить порядок', xp: 10 },
-        { title: '💎 Редкий квест', xp: 20 }
-      ],
-      forest: [
-        { title: '🌿 Лесная тренировка', xp: 10 },
-        { title: '🦊 Помочь зверьку', xp: 10 },
-        { title: '🍄 Тайная находка', xp: 20 }
-      ],
-      healer: [
-        { title: '🌱 Доброе лечение', xp: 10 },
-        { title: '🧺 Навести уют', xp: 10 },
-        { title: '☀️ Бонус заботы', xp: 20 }
-      ]
-    };
+<!-- SVITLANA -->
+<div class="screen svitlana" id="screen-svitlana">
+  <div class="hero-card svitlana">
+    <div class="hero-top">
+      <div class="avatar">⛏️</div>
+      <div class="hero-info">
+        <h2>Світлана</h2>
+        <div class="class">🧱 Будівниця Світів</div>
+        <div class="xp-count"><span id="s-xp">0</span> XP</div>
+      </div>
+    </div>
+    <div class="level-row">
+      <div class="level-badge">⚡ Рівень <span id="s-level">1</span></div>
+      <div class="next-xp">до наст. рівня: <span id="s-next">100</span> XP</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="s-bar" style="width:0%"></div></div>
+    <div class="streak-display">
+      <div class="fire">🔥</div><div class="streak-text">Серія днів:</div>
+      <div class="streak-num" id="s-streak">0</div>
+    </div>
+  </div>
+  <div class="section-title">📋 Щоденні квести</div>
+  <div class="quest-card" id="sq0" onclick="toggleQuest('s',0,10,'🧹',this)">
+    <div class="quest-icon">🧹</div>
+    <div class="quest-info"><div class="quest-name">10 хвилин порядку</div><div class="quest-type">DAILY · 10 XP</div></div>
+    <div class="quest-check" id="sq0-check">○</div>
+  </div>
+  <div class="quest-card" id="sq1" onclick="toggleQuest('s',1,10,'📖',this)">
+    <div class="quest-icon">📖</div>
+    <div class="quest-info"><div class="quest-name">Уроки без нагадувань</div><div class="quest-type">DAILY · 10 XP</div></div>
+    <div class="quest-check" id="sq1-check">○</div>
+  </div>
+  <div class="quest-card bonus-type" id="sq2" onclick="toggleQuest('s',2,20,'⭐',this)">
+    <div class="quest-icon">⭐</div>
+    <div class="quest-info"><div class="quest-name">Зробила сама, без нагадування</div><div class="quest-type">БОНУС · 20 XP</div></div>
+    <div class="quest-check" id="sq2-check">○</div>
+  </div>
+  <button class="extra-btn" id="extra-btn-s" onclick="toggleExtraPanel('s')">➕ Квест на вибір <i class="arrow">▾</i></button>
+  <div class="extra-panel" id="extra-panel-s"><div class="extra-panel-inner" id="extra-list-s"><div class="extra-loading">ЗАВАНТАЖЕННЯ...</div></div></div>
+  <div class="section-title">📅 Тижнева місія</div>
+  <div class="quest-card bonus-type" id="sq3" onclick="toggleQuest('s',3,50,'🏗️',this)">
+    <div class="quest-icon">🏗️</div>
+    <div class="quest-info"><div class="quest-name">Завершити великий блок справ</div><div class="quest-type">WEEKLY · 50 XP</div></div>
+    <div class="quest-check" id="sq3-check">○</div>
+  </div>
+  <div class="section-title">🏆 Нагороди</div>
+  <div class="rewards-grid">
+    <div class="reward-card" id="sr0"><div class="reward-level">РІВЕНЬ 3</div><div class="reward-icon">🍿</div><div class="reward-name">Кіно на вибір</div></div>
+    <div class="reward-card" id="sr1"><div class="reward-level">РІВЕНЬ 5</div><div class="reward-icon">🎮</div><div class="reward-name">Minecraft DLC</div></div>
+    <div class="reward-card" id="sr2"><div class="reward-level">РІВЕНЬ 8</div><div class="reward-icon">🛍️</div><div class="reward-name">Шопінг на 20€</div></div>
+    <div class="reward-card" id="sr3"><div class="reward-level">РІВЕНЬ 10</div><div class="reward-icon">🎡</div><div class="reward-name">Поїздка на вибір</div></div>
+  </div>
+  <button class="reset-btn" onclick="resetDay('s')">🔄 Новий день — скинути квести</button>
+  <div class="pb"></div>
+</div>
 
-    function serverRun(functionName, ...args) {
-      return new Promise((resolve, reject) => {
-        if (demoMode) {
-          resolve(demoServer(functionName, ...args));
-          return;
-        }
-        google.script.run
-          .withSuccessHandler(resolve)
-          .withFailureHandler(reject)[functionName](...args);
-      });
-    }
+<!-- MAMA -->
+<div class="screen mama" id="screen-mama">
+  <div class="hero-card mama">
+    <div class="hero-top">
+      <div class="avatar">🌿</div>
+      <div class="hero-info">
+        <h2>Мама</h2>
+        <div class="class">🍃 Хранителька Домашнього Вогнища</div>
+        <div class="xp-count"><span id="m-xp">0</span> XP</div>
+      </div>
+    </div>
+    <div class="level-row">
+      <div class="level-badge">⚡ Рівень <span id="m-level">1</span></div>
+      <div class="next-xp">до наст. рівня: <span id="m-next">100</span> XP</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="m-bar" style="width:0%"></div></div>
+    <div class="streak-display">
+      <div class="fire">🔥</div><div class="streak-text">Серія днів:</div>
+      <div class="streak-num" id="m-streak">0</div>
+    </div>
+  </div>
+  <div class="section-title">📋 Щоденні квести</div>
+  <div class="quest-card" id="mq0" onclick="toggleQuest('m',0,10,'🏡',this)">
+    <div class="quest-icon">🏡</div>
+    <div class="quest-info"><div class="quest-name">10 хвилин порядку / підготовки</div><div class="quest-type">DAILY · 10 XP</div></div>
+    <div class="quest-check" id="mq0-check">○</div>
+  </div>
+  <div class="quest-card" id="mq1" onclick="toggleQuest('m',1,10,'✅',this)">
+    <div class="quest-icon">✅</div>
+    <div class="quest-info"><div class="quest-name">Важлива справа зроблена вчасно</div><div class="quest-type">DAILY · 10 XP</div></div>
+    <div class="quest-check" id="mq1-check">○</div>
+  </div>
+  <div class="quest-card bonus-type" id="mq2" onclick="toggleQuest('m',2,20,'💚',this)">
+    <div class="quest-icon">💚</div>
+    <div class="quest-info"><div class="quest-name">Допомогла без прохання</div><div class="quest-type">БОНУС · 20 XP</div></div>
+    <div class="quest-check" id="mq2-check">○</div>
+  </div>
+  <button class="extra-btn" id="extra-btn-m" onclick="toggleExtraPanel('m')">➕ Квест на вибір <i class="arrow">▾</i></button>
+  <div class="extra-panel" id="extra-panel-m"><div class="extra-panel-inner" id="extra-list-m"><div class="extra-loading">ЗАВАНТАЖЕННЯ...</div></div></div>
+  <div class="section-title">📅 Тижнева місія</div>
+  <div class="quest-card bonus-type" id="mq3" onclick="toggleQuest('m',3,50,'🌟',this)">
+    <div class="quest-icon">🌟</div>
+    <div class="quest-info"><div class="quest-name">Завершити великий блок справ</div><div class="quest-type">WEEKLY · 50 XP</div></div>
+    <div class="quest-check" id="mq3-check">○</div>
+  </div>
+  <div class="section-title">🏆 Нагороди</div>
+  <div class="rewards-grid">
+    <div class="reward-card" id="mr0"><div class="reward-level">РІВЕНЬ 3</div><div class="reward-icon">🧖‍♀️</div><div class="reward-name">Spa-вечір</div></div>
+    <div class="reward-card" id="mr1"><div class="reward-level">РІВЕНЬ 5</div><div class="reward-icon">🍽️</div><div class="reward-name">Вечеря в ресторані</div></div>
+    <div class="reward-card" id="mr2"><div class="reward-level">РІВЕНЬ 8</div><div class="reward-icon">🌸</div><div class="reward-name">День для себе</div></div>
+    <div class="reward-card" id="mr3"><div class="reward-level">РІВЕНЬ 10</div><div class="reward-icon">✈️</div><div class="reward-name">Поїздка разом</div></div>
+  </div>
+  <button class="reset-btn" onclick="resetDay('m')">🔄 Новий день — скинути квести</button>
+  <div class="pb"></div>
+</div>
 
-    function demoServer(functionName, ...args) {
-      const key = 'familyXpGameDemo';
-      const state = JSON.parse(localStorage.getItem(key) || '{"players":[]}');
+<!-- PAPA -->
+<div class="screen papa" id="screen-papa">
+  <div class="hero-card papa">
+    <div class="hero-top">
+      <div class="avatar">🛡️</div>
+      <div class="hero-info">
+        <h2>Тато</h2>
+        <div class="class">🗺️ Мандрівник та Захисник</div>
+        <div class="xp-count"><span id="p-xp">0</span> XP</div>
+      </div>
+    </div>
+    <div class="level-row">
+      <div class="level-badge">⚡ Рівень <span id="p-level">1</span></div>
+      <div class="next-xp">до наст. рівня: <span id="p-next">100</span> XP</div>
+    </div>
+    <div class="progress-bar"><div class="progress-fill" id="p-bar" style="width:0%"></div></div>
+    <div class="streak-display">
+      <div class="fire">🔥</div><div class="streak-text">Серія днів:</div>
+      <div class="streak-num" id="p-streak">0</div>
+    </div>
+  </div>
+  <div class="section-title">📋 Щоденні квести</div>
+  <div class="quest-card" id="pq0" onclick="toggleQuest('p',0,10,'🎯',this)">
+    <div class="quest-icon">🎯</div>
+    <div class="quest-info"><div class="quest-name">10 хвилин підготовки / порядку</div><div class="quest-type">DAILY · 10 XP</div></div>
+    <div class="quest-check" id="pq0-check">○</div>
+  </div>
+  <div class="quest-card" id="pq1" onclick="toggleQuest('p',1,10,'📞',this)">
+    <div class="quest-icon">📞</div>
+    <div class="quest-info"><div class="quest-name">Зв'язок з сім'єю</div><div class="quest-type">DAILY · 10 XP</div></div>
+    <div class="quest-check" id="pq1-check">○</div>
+  </div>
+  <div class="quest-card bonus-type" id="pq2" onclick="toggleQuest('p',2,20,'💪',this)">
+    <div class="quest-icon">💪</div>
+    <div class="quest-info"><div class="quest-name">Допоміг сім'ї на відстані</div><div class="quest-type">БОНУС · 20 XP</div></div>
+    <div class="quest-check" id="pq2-check">○</div>
+  </div>
+  <button class="extra-btn" id="extra-btn-p" onclick="toggleExtraPanel('p')">➕ Квест на вибір <i class="arrow">▾</i></button>
+  <div class="extra-panel" id="extra-panel-p"><div class="extra-panel-inner" id="extra-list-p"><div class="extra-loading">ЗАВАНТАЖЕННЯ...</div></div></div>
+  <div class="section-title">📅 Тижнева місія</div>
+  <div class="quest-card bonus-type" id="pq3" onclick="toggleQuest('p',3,50,'🏆',this)">
+    <div class="quest-icon">🏆</div>
+    <div class="quest-info"><div class="quest-name">Завершити великий блок роботи</div><div class="quest-type">WEEKLY · 50 XP</div></div>
+    <div class="quest-check" id="pq3-check">○</div>
+  </div>
+  <div class="section-title">🏆 Нагороди</div>
+  <div class="rewards-grid">
+    <div class="reward-card" id="pr0"><div class="reward-level">РІВЕНЬ 3</div><div class="reward-icon">🎣</div><div class="reward-name">День рибалки</div></div>
+    <div class="reward-card" id="pr1"><div class="reward-level">РІВЕНЬ 5</div><div class="reward-icon">🍺</div><div class="reward-name">Вечір для себе</div></div>
+    <div class="reward-card" id="pr2"><div class="reward-level">РІВЕНЬ 8</div><div class="reward-icon">🚗</div><div class="reward-name">Авто-день (Touareg!)</div></div>
+    <div class="reward-card" id="pr3"><div class="reward-level">РІВЕНЬ 10</div><div class="reward-icon">🌊</div><div class="reward-name">Рибальська поїздка</div></div>
+  </div>
+  <button class="reset-btn" onclick="resetDay('p')">🔄 Новий день — скинути квести</button>
+  <div class="pb"></div>
+</div>
 
-      if (functionName === 'getPlayers') return state.players;
+<!-- FAMILY -->
+<div class="screen" id="screen-family">
+  <div class="boss-card">
+    <div class="boss-title">⚔️ БОС ТИЖНЯ</div>
+    <div class="boss-name" id="boss-name">🐉 Дракон Лінощів</div>
+    <div class="boss-progress"><span>Сімейний прогрес</span><span id="boss-xp-text">0 / 200 XP</span></div>
+    <div class="boss-bar"><div class="boss-fill" id="boss-fill" style="width:0%"></div></div>
+  </div>
+  <div class="family-hero">
+    <div class="family-title">👑 Таблиця Героїв</div>
+    <ul class="leaderboard" id="leaderboard"></ul>
+  </div>
+  <div class="section-title">🌟 Командний бонус</div>
+  <div class="quest-card" style="background:rgba(251,191,36,0.06);border-color:rgba(251,191,36,0.2);">
+    <div class="quest-icon">🌟</div>
+    <div class="quest-info">
+      <div class="quest-name">Всі виконали daily сьогодні</div>
+      <div class="quest-type">КОМАНДНИЙ БОНУС · +20 XP кожному</div>
+    </div>
+    <div class="quest-check" id="team-check" onclick="toggleTeamBonus()" style="cursor:pointer">○</div>
+  </div>
+  <div class="section-title">📖 Правила гри</div>
+  <div style="background:rgba(255,255,255,0.04);border-radius:14px;padding:14px;font-size:13px;line-height:1.9;color:rgba(255,255,255,0.7);">
+    <div>1️⃣ Кожен день — 1–3 квести на вибір</div>
+    <div>2️⃣ 100 XP = новий рівень</div>
+    <div>3️⃣ Бонус за самостійність без нагадувань</div>
+    <div>4️⃣ Якщо всі зробили daily — кожен +20 XP</div>
+    <div>5️⃣ Тижнева місія — велика нагорода</div>
+    <div>6️⃣ Нагороди отримуєш при досягненні рівня!</div>
+  </div>
+  <div class="pb"></div>
+</div>
 
-      if (functionName === 'savePlayer') {
-        const player = args[0];
-        player.playerId = player.playerId || crypto.randomUUID();
-        player.xp = player.xp || 0;
-        const index = state.players.findIndex(p => p.playerId === player.playerId);
-        if (index >= 0) state.players[index] = player;
-        else state.players.push(player);
-        localStorage.setItem(key, JSON.stringify(state));
-        return { ok: true, playerId: player.playerId };
+<div class="toast" id="toast"></div>
+
+<script>
+const POLL_INTERVAL = 5 * 60 * 1000;
+const CHARS = ['a','s','m','p'];
+const CHAR_NAMES  = { a:'Ангеліна', s:'Світлана', m:'Мама', p:'Тато' };
+const CHAR_ICONS  = { a:'🧙‍♀️', s:'⛏️', m:'🌿', p:'🛡️' };
+const BOSSES = ['🐉 Дракон Лінощів','🕷️ Павук Безладдя','👹 Монстр Відкладань','🧟 Зомбі Нудьги','🦂 Скорпіон Забудькуватості'];
+const BOSS_GOAL = 200;
+const REWARD_LEVELS = [3,5,8,10];
+
+let SCRIPT_URL = localStorage.getItem('fq_script_url') || '';
+
+function saveScriptUrl() {
+  const val = document.getElementById('script-url-input').value.trim();
+  if (!val.startsWith('https://script.google.com')) { alert('Невірний URL'); return; }
+  SCRIPT_URL = val;
+  localStorage.setItem('fq_script_url', val);
+  document.getElementById('setup-screen').style.display = 'none';
+  initApp();
+}
+
+function defaultState() {
+  const st = { teamBonus: false };
+  CHARS.forEach(c => { st[c] = { xp:0, streak:0, lastDay:'', quests:[false,false,false,false] }; });
+  return st;
+}
+let state = defaultState();
+let extraQuestsData = {};
+
+async function apiGet() {
+  const res = await fetch(SCRIPT_URL, { method:'GET', mode:'cors' });
+  return res.json();
+}
+async function apiPost(payload) {
+  await fetch(SCRIPT_URL, { method:'POST', mode:'cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(payload) });
+}
+
+async function syncFromSheets(silent = false) {
+  if (!SCRIPT_URL) return;
+  setSyncState('syncing');
+  try {
+    const data = await apiGet();
+    CHARS.forEach(c => {
+      if (data.chars && data.chars[c]) {
+        const d = data.chars[c];
+        state[c].xp      = Number(d.xp)    || 0;
+        state[c].streak  = Number(d.streak) || 0;
+        state[c].lastDay = d.lastDay || '';
+        state[c].quests  = Array.isArray(d.quests) ? d.quests : [false,false,false,false];
       }
+    });
+    state.teamBonus = !!data.teamBonus;
+    extraQuestsData = data.extraQuests || {};
+    renderAll();
+    CHARS.forEach(c => {
+      const panel = document.getElementById(`extra-panel-${c}`);
+      if (panel && panel.classList.contains('open')) renderExtraList(c);
+    });
+    setSyncState('ok');
+    if (!silent) showToast('🔄 Дані синхронізовано');
+  } catch(e) { setSyncState('error'); console.error(e); }
+}
 
-      if (functionName === 'addQuestXp') {
-        const [playerId, questTitle, xp] = args;
-        const player = state.players.find(p => p.playerId === playerId);
-        player.xp = Number(player.xp || 0) + Number(xp || 0);
-        localStorage.setItem(key, JSON.stringify(state));
-        return {
-          ok: true,
-          xp: player.xp,
-          level: Math.floor(player.xp / 100) + 1,
-          nextLevelXp: 100 - (player.xp % 100)
-        };
-      }
+function setSyncState(s) {
+  document.getElementById('sync-bar').className = 'sync-bar ' + s;
+  const st = document.getElementById('sync-status');
+  st.className = 'sync-status ' + (s==='ok'?'live':s==='error'?'err':'');
+  st.textContent = s==='ok'?'● LIVE':s==='error'?'● ERR':'● SYNC';
+}
+
+function xpForLevel(lvl) { return lvl * 100; }
+function getLevel(xp) {
+  let lvl=1, total=0;
+  while(true) {
+    const needed = xpForLevel(lvl);
+    if (xp < total+needed) return { level:lvl, current:xp-total, needed };
+    total += needed; lvl++;
+  }
+}
+
+function renderChar(c) {
+  const d = state[c], lvl = getLevel(d.xp);
+  document.getElementById(`${c}-xp`).textContent    = d.xp;
+  document.getElementById(`${c}-level`).textContent  = lvl.level;
+  document.getElementById(`${c}-next`).textContent   = lvl.needed - lvl.current;
+  document.getElementById(`${c}-streak`).textContent = d.streak;
+  document.getElementById(`${c}-bar`).style.width = Math.min(100,Math.round(lvl.current/lvl.needed*100))+'%';
+  for (let i=0;i<4;i++) {
+    const card=document.getElementById(`${c}q${i}`), check=document.getElementById(`${c}q${i}-check`);
+    if (d.quests[i]) { card.classList.add('done'); check.textContent='✅'; }
+    else { card.classList.remove('done'); check.textContent='○'; }
+  }
+  REWARD_LEVELS.forEach((rl,i) => {
+    const el=document.getElementById(`${c}r${i}`);
+    if (el) { lvl.level>=rl ? el.classList.add('unlocked') : el.classList.remove('unlocked'); }
+  });
+}
+
+function renderFamily() {
+  const sorted = CHARS.map(c=>({c,xp:state[c].xp,level:getLevel(state[c].xp).level})).sort((a,b)=>b.xp-a.xp);
+  const medals = ['🥇','🥈','🥉','🏅'];
+  document.getElementById('leaderboard').innerHTML = sorted.map((item,i)=>`
+    <li class="lb-item">
+      <div class="lb-rank">${medals[i]}</div>
+      <div class="lb-avatar">${CHAR_ICONS[item.c]}</div>
+      <div class="lb-name">${CHAR_NAMES[item.c]}<small>Рівень ${item.level}</small></div>
+      <div class="lb-xp">${item.xp} XP</div>
+    </li>`).join('');
+  const totalXP = CHARS.reduce((s,c)=>s+state[c].xp,0);
+  const bossProgress = totalXP % BOSS_GOAL;
+  document.getElementById('boss-name').textContent    = BOSSES[Math.floor(totalXP/BOSS_GOAL)%BOSSES.length];
+  document.getElementById('boss-xp-text').textContent = `${bossProgress} / ${BOSS_GOAL} XP`;
+  document.getElementById('boss-fill').style.width    = Math.min(100,bossProgress/BOSS_GOAL*100)+'%';
+  document.getElementById('team-check').textContent   = state.teamBonus ? '✅' : '○';
+}
+
+function renderAll() { CHARS.forEach(renderChar); renderFamily(); }
+
+async function toggleQuest(c, idx, xp, icon, cardEl) {
+  const d = state[c], wasDone = d.quests[idx];
+  d.quests[idx] = !wasDone;
+  d.xp = Math.max(0, wasDone ? d.xp-xp : d.xp+xp);
+  if (!wasDone) {
+    const today = new Date().toDateString();
+    if (d.lastDay !== today) {
+      d.streak = d.lastDay===new Date(Date.now()-86400000).toDateString() ? d.streak+1 : 1;
+      d.lastDay = today;
     }
+    const r=cardEl.getBoundingClientRect();
+    showBurst(`+${xp} XP`,r.left+r.width/2,r.top+r.height/2,xp>=50?'#fbbf24':'#22c55e');
+    showToast(`${icon} +${xp} XP — відмінно!`);
+  }
+  renderChar(c); renderFamily();
+  setSyncState('syncing');
+  try {
+    await apiPost({action:'updateChar',  char:c, xp:d.xp, streak:d.streak, lastDay:d.lastDay});
+    await apiPost({action:'updateQuests', char:c, quests:d.quests});
+    setSyncState('ok');
+  } catch(e) { setSyncState('error'); }
+}
 
-    async function loadPlayers() {
-      players = await serverRun('getPlayers');
-      renderPlayers();
-    }
+async function toggleTeamBonus() {
+  state.teamBonus = !state.teamBonus;
+  CHARS.forEach(c => { state[c].xp = Math.max(0, state[c].xp + (state.teamBonus?20:-20)); });
+  if (state.teamBonus) showToast('🌟 Командний бонус! Кожен +20 XP!');
+  renderAll();
+  setSyncState('syncing');
+  try {
+    await apiPost({action:'updateTeam', teamBonus:state.teamBonus});
+    for (const c of CHARS) await apiPost({action:'updateChar', char:c, xp:state[c].xp, streak:state[c].streak, lastDay:state[c].lastDay});
+    setSyncState('ok');
+  } catch(e) { setSyncState('error'); }
+}
 
-    function showPlayers() {
-      document.getElementById('screenPlayers').classList.remove('hidden');
-      document.getElementById('screenCreate').classList.add('hidden');
-      document.getElementById('screenHero').classList.add('hidden');
-      loadPlayers();
-    }
+async function resetDay(c) {
+  if (!confirm(`Скинути квести для ${CHAR_NAMES[c]}? (XP залишається)`)) return;
+  state[c].quests = [false,false,false,false];
+  renderChar(c);
+  setSyncState('syncing');
+  try { await apiPost({action:'resetDay', char:c}); setSyncState('ok'); }
+  catch(e) { setSyncState('error'); }
+}
 
-    function showCreate() {
-      document.getElementById('screenPlayers').classList.add('hidden');
-      document.getElementById('screenCreate').classList.remove('hidden');
-      document.getElementById('screenHero').classList.add('hidden');
-    }
+function toggleExtraPanel(c) {
+  const btn=document.getElementById(`extra-btn-${c}`), panel=document.getElementById(`extra-panel-${c}`);
+  const isOpen = panel.classList.contains('open');
+  CHARS.forEach(x => {
+    document.getElementById(`extra-btn-${x}`).classList.remove('open');
+    document.getElementById(`extra-panel-${x}`).classList.remove('open');
+  });
+  if (!isOpen) { btn.classList.add('open'); panel.classList.add('open'); renderExtraList(c); }
+}
 
-    function avatarFor(theme) {
-      if (theme === 'blocks') return '⛏️';
-      if (theme === 'forest') return '🦊';
-      if (theme === 'healer') return '🌱';
-      return '🐉';
-    }
+function renderExtraList(c) {
+  const container = document.getElementById(`extra-list-${c}`);
+  const quests = extraQuestsData[c];
+  if (!quests || quests.length===0) {
+    container.innerHTML = '<div class="extra-loading">СПИСОК ПОРОЖНІЙ — ДОДАЙ КВЕСТИ В SHEETS</div>';
+    return;
+  }
+  container.innerHTML = quests.map((q,i)=>`
+    <div class="extra-quest-item" onclick="doExtraQuest('${c}',${i})">
+      <div class="extra-quest-icon">${q.icon}</div>
+      <div class="extra-quest-name">${q.name}</div>
+      <div class="extra-quest-xp">+${q.xp} XP</div>
+    </div>`).join('');
+}
 
-    function renderPlayers() {
-      const grid = document.getElementById('playersGrid');
-      if (!players.length) {
-        grid.innerHTML = `
-          <div class="card" style="grid-column: 1 / -1; text-align:center">
-            <div style="font-size:54px">✨</div>
-            <h3>Пока героев нет</h3>
-            <p style="color:var(--muted)">Создай первого героя и нажми пару квестов для вау-эффекта.</p>
-            <button class="btn" onclick="showCreate()">Создать первого героя</button>
-          </div>`;
-        return;
-      }
+async function doExtraQuest(c, idx) {
+  const q = extraQuestsData[c][idx];
+  if (!q) return;
+  const d = state[c];
+  d.xp += q.xp;
+  const today = new Date().toDateString();
+  if (d.lastDay !== today) {
+    d.streak = d.lastDay===new Date(Date.now()-86400000).toDateString() ? d.streak+1 : 1;
+    d.lastDay = today;
+  }
+  document.getElementById(`extra-btn-${c}`).classList.remove('open');
+  document.getElementById(`extra-panel-${c}`).classList.remove('open');
+  const r = document.getElementById(`extra-btn-${c}`).getBoundingClientRect();
+  showBurst(`+${q.xp} XP`, r.left+r.width/2, r.top, '#fbbf24');
+  showToast(`${q.icon} ${q.name} — +${q.xp} XP!`);
+  renderChar(c); renderFamily();
+  setSyncState('syncing');
+  try { await apiPost({action:'extraQuest', char:c, xp:d.xp, streak:d.streak, lastDay:d.lastDay}); setSyncState('ok'); }
+  catch(e) { setSyncState('error'); }
+}
 
-      grid.innerHTML = players.map(player => `
-        <div class="card player-card ${player.theme || 'magic'}" onclick="openHero('${player.playerId}')">
-          <div class="avatar">${avatarFor(player.theme)}</div>
-          <h3 class="hero-name">${escapeHtml(player.heroName)}</h3>
-          <p class="hero-class">${escapeHtml(player.heroClass)}</p>
-          <div class="stats">
-            <div class="stat"><strong>${Number(player.xp || 0)}</strong><span>XP</span></div>
-            <div class="stat"><strong>${Math.floor(Number(player.xp || 0) / 100) + 1}</strong><span>уровень</span></div>
-            <div class="stat"><strong>${escapeHtml(player.familyName || 'Игрок')}</strong><span>игрок</span></div>
-          </div>
-        </div>
-      `).join('');
-    }
+function showScreen(name) {
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  document.querySelector(`[data-char="${name}"]`).classList.add('active');
+  if (name==='family') renderFamily();
+}
 
-    async function createPlayer() {
-      const familyName = document.getElementById('familyName').value.trim();
-      const heroName = document.getElementById('heroName').value.trim();
-      const heroClass = document.getElementById('heroClass').value;
-      const theme = document.getElementById('theme').value;
+function showToast(msg) {
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2500);
+}
 
-      if (!familyName || !heroName) {
-        showToast('Заполни имя игрока и героя');
-        return;
-      }
+function showBurst(text,x,y,color) {
+  const el=document.createElement('div');
+  el.className='xp-burst'; el.textContent=text;
+  el.style.left=x+'px'; el.style.top=y+'px'; el.style.color=color;
+  document.body.appendChild(el);
+  setTimeout(()=>el.remove(),1000);
+}
 
-      await serverRun('savePlayer', { familyName, heroName, heroClass, theme, xp: 0 });
-      document.getElementById('familyName').value = '';
-      document.getElementById('heroName').value = '';
-      showToast('Герой создан ✨');
-      showPlayers();
-    }
+function initApp() {
+  renderAll();
+  syncFromSheets(true);
+  setInterval(()=>syncFromSheets(true), POLL_INTERVAL);
+}
 
-    function openHero(playerId) {
-      currentPlayer = players.find(p => p.playerId === playerId);
-      document.getElementById('screenPlayers').classList.add('hidden');
-      document.getElementById('screenCreate').classList.add('hidden');
-      document.getElementById('screenHero').classList.remove('hidden');
-      renderHero();
-    }
-
-    function renderHero() {
-      const p = currentPlayer;
-      const xp = Number(p.xp || 0);
-      const level = Math.floor(xp / 100) + 1;
-      const progress = xp % 100;
-      const quests = defaultQuests[p.theme || 'magic'];
-
-      document.getElementById('screenHero').className = `card ${p.theme || 'magic'}`;
-      document.getElementById('heroView').innerHTML = `
-        <div style="text-align:center">
-          <div class="avatar">${avatarFor(p.theme)}</div>
-          <h2 style="margin:0">${escapeHtml(p.heroName)}</h2>
-          <p style="color:var(--muted); margin-top:6px">${escapeHtml(p.heroClass)} · ${escapeHtml(p.familyName || 'Игрок')}</p>
-        </div>
-
-        <div class="stats">
-          <div class="stat"><strong>${xp}</strong><span>XP</span></div>
-          <div class="stat"><strong>${level}</strong><span>уровень</span></div>
-          <div class="stat"><strong>${100 - progress}</strong><span>до уровня</span></div>
-        </div>
-
-        <p style="color:var(--muted); margin-bottom:6px">Прогресс уровня</p>
-        <div class="bar-wrap"><div class="bar" style="width:${progress}%"></div></div>
-
-        <h3>Квесты сегодня</h3>
-        <div class="grid">
-          ${quests.map(q => `
-            <button class="btn quest" onclick="completeQuest('${escapeAttr(q.title)}', ${q.xp})">
-              <span>${q.title}</span>
-              <strong>+${q.xp} XP</strong>
-            </button>
-          `).join('')}
-        </div>
-      `;
-    }
-
-    async function completeQuest(title, xp) {
-      const result = await serverRun('addQuestXp', currentPlayer.playerId, title, xp);
-      currentPlayer.xp = result.xp;
-      showToast(`+${xp} XP ✨`);
-      renderHero();
-    }
-
-    function showToast(message) {
-      const toast = document.getElementById('toast');
-      toast.textContent = message;
-      toast.classList.add('show');
-      setTimeout(() => toast.classList.remove('show'), 1300);
-    }
-
-    function escapeHtml(str) {
-      return String(str || '').replace(/[&<>"]/g, s => ({
-        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;'
-      }[s]));
-    }
-
-    function escapeAttr(str) {
-      return String(str || '').replace(/'/g, "&#39;").replace(/"/g, '&quot;');
-    }
-
-    loadPlayers();
-  </script>
+if (SCRIPT_URL) {
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('script-url-input').value = SCRIPT_URL;
+  initApp();
+}
+</script>
 </body>
 </html>
