@@ -148,6 +148,25 @@
   .xp-burst { position: fixed; font-size: 26px; font-weight: 900; pointer-events: none; z-index: 999; animation: burst 1s forwards; text-shadow: 0 0 20px currentColor; }
   @keyframes burst { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-80px) scale(1.5)} }
   .pb { padding-bottom: 40px; }
+.log-feed {
+  background: rgba(255,255,255,0.03);
+  border: 1px solid rgba(255,255,255,0.07);
+  border-radius: 14px;
+  overflow: hidden;
+  margin-top: 8px;
+}
+.log-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 14px;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 13px;
+}
+.log-item:last-child { border-bottom: none; }
+.log-avatar { font-size: 18px; flex-shrink: 0; }
+.log-text { flex: 1; font-weight: 600; color: rgba(255,255,255,0.8); line-height: 1.4; }
+.log-text span { color: var(--gold); font-weight: 900; }
+.log-time { font-size: 11px; color: rgba(255,255,255,0.3); font-weight: 700; flex-shrink: 0; }
+.log-empty { text-align: center; padding: 20px; font-size: 12px; color: rgba(255,255,255,0.3); font-weight: 700; letter-spacing: 1px; }
 </style>
 </head>
 <body>
@@ -423,7 +442,11 @@
     </div>
     <div class="quest-check" id="team-check" onclick="toggleTeamBonus()" style="cursor:pointer">○</div>
   </div>
-  <div class="section-title">📖 Правила гри</div>
+ <div class="section-title">📜 Останні події</div>
+<div class="log-feed" id="log-feed">
+  <div class="log-empty">ЗАВАНТАЖЕННЯ...</div>
+</div>
+ <div class="section-title">📖 Правила гри</div>
   <div style="background:rgba(255,255,255,0.04);border-radius:14px;padding:14px;font-size:13px;line-height:1.9;color:rgba(255,255,255,0.7);">
     <div>1️⃣ Кожен день — 1–3 квести на вибір</div>
     <div>2️⃣ 100 XP = новий рівень</div>
@@ -489,7 +512,8 @@ async function syncFromSheets(silent = false) {
     });
     state.teamBonus = !!data.teamBonus;
     extraQuestsData = data.extraQuests || {};
-    renderAll();
+    renderLog(data.log || []);
+	renderAll();
     CHARS.forEach(c => {
       const panel = document.getElementById(`extra-panel-${c}`);
       if (panel && panel.classList.contains('open')) renderExtraList(c);
@@ -641,7 +665,7 @@ async function doExtraQuest(c, idx) {
   showToast(`${q.icon} ${q.name} — +${q.xp} XP!`);
   renderChar(c); renderFamily();
   setSyncState('syncing');
-  try { await apiPost({action:'extraQuest', char:c, xp:d.xp, streak:d.streak, lastDay:d.lastDay}); setSyncState('ok'); }
+  try { await apiPost({action:'extraQuest', char:c, xp:d.xp, streak:d.streak, lastDay:d.lastDay, questName:q.name, questXp:q.xp}); setSyncState('ok'); }
   catch(e) { setSyncState('error'); }
 }
 
@@ -666,7 +690,23 @@ function showBurst(text,x,y,color) {
   document.body.appendChild(el);
   setTimeout(()=>el.remove(),1000);
 }
-
+function renderLog(logItems) {
+  const container = document.getElementById('log-feed');
+  if (!logItems || logItems.length === 0) {
+    container.innerHTML = '<div class="log-empty">ПОКИ ЩО ПОРОЖНЬО — ВИКОНАЙТЕ ПЕРШИЙ КВЕСТ!</div>';
+    return;
+  }
+  container.innerHTML = logItems.map(item => `
+    <div class="log-item">
+      <div class="log-avatar">${CHAR_ICONS[item.char] || '⭐'}</div>
+      <div class="log-text">
+        ${CHAR_NAMES[item.char] || item.char} — ${item.questName}
+        <span>+${item.xp} XP</span>
+      </div>
+      <div class="log-time">${item.dateStr}</div>
+    </div>
+  `).join('');
+}
 function initApp() {
   renderAll();
   syncFromSheets(true);
