@@ -469,7 +469,8 @@ const BOSSES = ['🐉 Дракон Лінощів','🕷️ Павук Безл�
 const BOSS_GOAL = 200;
 const REWARD_LEVELS = [3,5,8,10];
 
-let SCRIPT_URL = localStorage.getItem('fq_script_url') || '';
+let SCRIPT_URL = 'https://script.google.com/macros/s/https://script.google.com/macros/s/AKfycbxnc3jDz4aUQutT6Up0v60MWXaZD2FXm0J9huop8W2u2eAGn-6UzmxRiJtJXJzaBeLg/exec';
+localStorage.setItem('fq_script_url', SCRIPT_URL);
 
 function saveScriptUrl() {
   const val = document.getElementById('script-url-input').value.trim();
