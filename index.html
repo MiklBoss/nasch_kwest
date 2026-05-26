@@ -25,7 +25,7 @@
       radial-gradient(1px 1px at 90% 70%, rgba(255,255,255,0.2) 0%, transparent 100%);
     pointer-events: none; z-index: 0;
   }
-  .sync-bar { position: fixed; top: 0; left: 0; right: 0; height: 3px; background: transparent; z-index: 999; }
+  .sync-bar { position: fixed; top: 0; left: 0; right: 0; height: 3px; z-index: 999; }
   .sync-bar.syncing { background: linear-gradient(90deg, transparent, #3b82f6, transparent); animation: syncAnim 1s infinite; }
   .sync-bar.ok      { background: #22c55e; animation: fadeOut 1s forwards 0.5s; }
   .sync-bar.error   { background: #ef4444; animation: fadeOut 2s forwards; }
@@ -33,14 +33,6 @@
   @keyframes fadeOut  { to { opacity: 0; } }
   .sync-status { position: fixed; top: 8px; right: 12px; font-size: 11px; font-weight: 700; letter-spacing: 1px; color: rgba(255,255,255,0.3); z-index: 998; transition: color 0.3s; }
   .sync-status.live { color: #22c55e; } .sync-status.err { color: #ef4444; }
-  .setup-screen { position: fixed; inset: 0; background: #0d0d0d; z-index: 2000; display: flex; align-items: center; justify-content: center; padding: 24px; }
-  .setup-box { max-width: 420px; width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 32px 24px; }
-  .setup-box h2 { font-family: 'Cinzel Decorative', cursive; font-size: 18px; color: var(--gold); margin-bottom: 8px; }
-  .setup-box p { font-size: 13px; color: rgba(255,255,255,0.6); margin-bottom: 20px; line-height: 1.6; }
-  .setup-box input { width: 100%; background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); border-radius: 12px; color: #fff; font-family: 'Nunito', sans-serif; font-size: 12px; padding: 12px 14px; margin-bottom: 12px; outline: none; }
-  .setup-box input:focus { border-color: var(--gold); }
-  .setup-box button { width: 100%; background: linear-gradient(135deg, #f59e0b, #fbbf24); border: none; border-radius: 12px; color: #000; font-family: 'Nunito', sans-serif; font-size: 15px; font-weight: 900; padding: 14px; cursor: pointer; }
-  .setup-note { font-size: 11px; color: rgba(255,255,255,0.3); margin-top: 12px; text-align: center; line-height: 1.5; }
   .header { text-align: center; padding: 36px 20px 10px; position: relative; z-index: 1; }
   .header h1 { font-family: 'Cinzel Decorative', cursive; font-size: clamp(18px, 5vw, 30px); background: linear-gradient(135deg, #fbbf24, #f59e0b, #fcd34d); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 6px; }
   .header .subtitle { color: #888; font-size: 12px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; }
@@ -52,6 +44,7 @@
   .nav-btn[data-char="mama"].active     { background: var(--mama-bg);     border-color: var(--mama-color);     color: var(--mama-accent); }
   .nav-btn[data-char="papa"].active     { background: var(--papa-bg);     border-color: var(--papa-color);     color: var(--papa-accent); }
   .nav-btn[data-char="family"].active   { background: #1a1a1a; border-color: var(--gold); color: var(--gold); }
+  .nav-btn[data-char="shop"].active     { background: #1a0f00; border-color: #f97316; color: #fb923c; }
   .screen { display: none; padding: 14px; position: relative; z-index: 1; max-width: 500px; margin: 0 auto; }
   .screen.active { display: block; }
   .hero-card { border-radius: var(--card-radius); padding: 22px; margin-bottom: 14px; position: relative; overflow: hidden; border: 1px solid rgba(255,255,255,0.08); }
@@ -81,8 +74,8 @@
   @keyframes shimmer { to { left: 200%; } }
   .angelina .progress-fill { background: linear-gradient(90deg, var(--angelina-color), var(--angelina-accent)); }
   .svitlana .progress-fill { background: linear-gradient(90deg, var(--svitlana-color), var(--svitlana-accent)); }
-  .mama     .progress-fill { background: linear-gradient(90deg, var(--mama-color),     var(--mama-accent)); }
-  .papa     .progress-fill { background: linear-gradient(90deg, var(--papa-color),     var(--papa-accent)); }
+  .mama     .progress-fill { background: linear-gradient(90deg, var(--mama-color), var(--mama-accent)); }
+  .papa     .progress-fill { background: linear-gradient(90deg, var(--papa-color), var(--papa-accent)); }
   .section-title { font-size: 11px; font-weight: 800; letter-spacing: 2px; text-transform: uppercase; color: rgba(255,255,255,0.4); margin: 18px 0 8px; }
   .quest-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 13px 14px; margin-bottom: 9px; display: flex; align-items: center; gap: 10px; cursor: pointer; transition: all 0.2s; user-select: none; -webkit-tap-highlight-color: transparent; }
   .quest-card:active { transform: scale(0.97); }
@@ -107,7 +100,7 @@
   .extra-btn .arrow { transition: transform 0.3s; font-style: normal; display: inline-block; }
   .extra-btn.open .arrow { transform: rotate(180deg); }
   .angelina .extra-btn { border-color: rgba(168,85,247,0.4); color: var(--angelina-accent); }
-  .svitlana .extra-btn { border-color: rgba(34,197,94,0.4);  color: var(--svitlana-accent); }
+  .svitlana .extra-btn { border-color: rgba(34,197,94,0.4); color: var(--svitlana-accent); }
   .mama     .extra-btn { border-color: rgba(245,158,11,0.4); color: var(--mama-accent); }
   .papa     .extra-btn { border-color: rgba(59,130,246,0.4); color: var(--papa-accent); }
   .extra-panel { display: none; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; overflow: hidden; margin-bottom: 12px; }
@@ -126,7 +119,6 @@
   .reward-card.unlocked .reward-level { color: var(--gold); }
   .reward-card .reward-icon { font-size: 26px; margin-bottom: 5px; }
   .reward-card .reward-name { font-size: 12px; font-weight: 700; }
-  .reset-btn { display: block; width: 100%; background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.1); color: rgba(255,255,255,0.3); border-radius: 12px; padding: 12px; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 18px; letter-spacing: 1px; }
   .family-hero { background: linear-gradient(135deg, #1a1008, #0d0d0d); border: 1px solid rgba(251,191,36,0.2); border-radius: var(--card-radius); padding: 22px; margin-bottom: 14px; text-align: center; }
   .family-title { font-family: 'Cinzel Decorative', cursive; font-size: 15px; color: var(--gold); margin-bottom: 14px; }
   .leaderboard { list-style: none; }
@@ -143,60 +135,105 @@
   .boss-progress { display: flex; justify-content: space-between; font-size: 12px; color: rgba(255,255,255,0.5); margin-bottom: 7px; }
   .boss-bar { height: 13px; background: rgba(255,255,255,0.06); border-radius: 10px; overflow: hidden; }
   .boss-fill { height: 100%; background: linear-gradient(90deg, #ef4444, #f97316); border-radius: 10px; transition: width 0.8s; }
+  .log-feed { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; overflow: hidden; margin-top: 8px; }
+  .log-item { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.04); font-size: 13px; }
+  .log-item:last-child { border-bottom: none; }
+  .log-avatar { font-size: 18px; flex-shrink: 0; }
+  .log-text { flex: 1; font-weight: 600; color: rgba(255,255,255,0.8); line-height: 1.4; }
+  .log-text span { color: var(--gold); font-weight: 900; }
+  .log-text span.spent { color: #ef4444; }
+  .log-time { font-size: 11px; color: rgba(255,255,255,0.3); font-weight: 700; flex-shrink: 0; }
+  .log-empty { text-align: center; padding: 20px; font-size: 12px; color: rgba(255,255,255,0.3); font-weight: 700; letter-spacing: 1px; }
+  /* SHOP */
+  .shop-header { background: linear-gradient(135deg, #1a0f00, #0d0d0d); border: 1px solid rgba(249,115,22,0.3); border-radius: var(--card-radius); padding: 22px; margin-bottom: 14px; text-align: center; }
+  .shop-title { font-family: 'Cinzel Decorative', cursive; font-size: 18px; color: #fb923c; margin-bottom: 8px; }
+  .shop-subtitle { font-size: 12px; color: rgba(255,255,255,0.4); font-weight: 600; letter-spacing: 1px; }
+  .shop-who { display: flex; gap: 8px; flex-wrap: wrap; justify-content: center; margin-top: 14px; }
+  .shop-who-btn { border: 2px solid rgba(255,255,255,0.1); border-radius: 50px; padding: 8px 16px; background: rgba(255,255,255,0.04); font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 800; color: rgba(255,255,255,0.5); cursor: pointer; transition: all 0.2s; }
+  .shop-who-btn.selected { opacity: 1; border-color: #f97316; color: #fb923c; background: rgba(249,115,22,0.1); }
+  .shop-item { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; display: flex; align-items: center; gap: 12px; }
+  .shop-item-icon { font-size: 28px; flex-shrink: 0; }
+  .shop-item-info { flex: 1; }
+  .shop-item-name { font-size: 15px; font-weight: 800; margin-bottom: 3px; }
+  .shop-item-cost { font-size: 13px; color: #fb923c; font-weight: 700; }
+  .shop-buy-btn { background: linear-gradient(135deg, #f97316, #fb923c); border: none; border-radius: 10px; padding: 10px 16px; font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 900; color: #000; cursor: pointer; flex-shrink: 0; transition: all 0.2s; }
+  .shop-buy-btn:active { transform: scale(0.95); }
+  .shop-buy-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+  .shop-no-char { text-align: center; padding: 30px; font-size: 13px; color: rgba(255,255,255,0.3); font-weight: 700; }
+  /* PIN MODAL */
+  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 3000; display: flex; align-items: center; justify-content: center; padding: 24px; }
+  .modal-overlay.hidden { display: none; }
+  .modal-box { max-width: 320px; width: 100%; background: #1a1a1a; border: 1px solid rgba(255,255,255,0.1); border-radius: 24px; padding: 28px 24px; text-align: center; }
+  .modal-icon { font-size: 40px; margin-bottom: 12px; }
+  .modal-title { font-size: 18px; font-weight: 900; margin-bottom: 6px; }
+  .modal-subtitle { font-size: 13px; color: rgba(255,255,255,0.5); margin-bottom: 20px; }
+  .pin-display { display: flex; justify-content: center; gap: 12px; margin-bottom: 20px; }
+  .pin-dot { width: 16px; height: 16px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.3); transition: all 0.2s; }
+  .pin-dot.filled { background: #f97316; border-color: #f97316; }
+  .pin-keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .pin-key { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 16px; font-family: 'Nunito', sans-serif; font-size: 20px; font-weight: 900; color: #fff; cursor: pointer; transition: all 0.15s; }
+  .pin-key:active { background: rgba(255,255,255,0.15); transform: scale(0.95); }
+  .pin-key.del { font-size: 16px; color: rgba(255,255,255,0.5); }
+  .pin-error { color: #ef4444; font-size: 13px; font-weight: 700; margin-top: 12px; min-height: 20px; }
+  .modal-cancel { background: none; border: none; color: rgba(255,255,255,0.3); font-family: 'Nunito', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer; margin-top: 16px; }
+  /* TOAST */
   .toast { position: fixed; top: 20px; left: 50%; transform: translateX(-50%) translateY(-80px); background: #1a1a1a; border: 1px solid rgba(255,255,255,0.15); border-radius: 50px; padding: 11px 22px; font-size: 14px; font-weight: 700; color: #fff; z-index: 1000; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); white-space: nowrap; box-shadow: 0 8px 32px rgba(0,0,0,0.5); pointer-events: none; }
   .toast.show { transform: translateX(-50%) translateY(0); }
   .xp-burst { position: fixed; font-size: 26px; font-weight: 900; pointer-events: none; z-index: 999; animation: burst 1s forwards; text-shadow: 0 0 20px currentColor; }
   @keyframes burst { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-80px) scale(1.5)} }
   .pb { padding-bottom: 40px; }
-.log-feed {
-  background: rgba(255,255,255,0.03);
-  border: 1px solid rgba(255,255,255,0.07);
-  border-radius: 14px;
-  overflow: hidden;
-  margin-top: 8px;
-}
-.log-item {
-  display: flex; align-items: center; gap: 10px;
-  padding: 10px 14px;
-  border-bottom: 1px solid rgba(255,255,255,0.04);
-  font-size: 13px;
-}
-.log-item:last-child { border-bottom: none; }
-.log-avatar { font-size: 18px; flex-shrink: 0; }
-.log-text { flex: 1; font-weight: 600; color: rgba(255,255,255,0.8); line-height: 1.4; }
-.log-text span { color: var(--gold); font-weight: 900; }
-.log-time { font-size: 11px; color: rgba(255,255,255,0.3); font-weight: 700; flex-shrink: 0; }
-.log-empty { text-align: center; padding: 20px; font-size: 12px; color: rgba(255,255,255,0.3); font-weight: 700; letter-spacing: 1px; }
 </style>
 </head>
 <body>
-
+ 
 <div class="sync-bar" id="sync-bar"></div>
 <div class="sync-status" id="sync-status">●</div>
-
-<div class="setup-screen" id="setup-screen">
-  <div class="setup-box">
-    <h2>⚙️ Підключення</h2>
-    <p>Вставте URL вашого Google Apps Script Web App. Його ви отримаєте після Deploy → New deployment.</p>
-    <input type="text" id="script-url-input" placeholder="https://script.google.com/macros/s/.../exec" />
-    <button onclick="saveScriptUrl()">🚀 Підключити та запустити</button>
-    <div class="setup-note">URL зберігається локально на цьому пристрої.<br>Кожен член сім'ї вводить його один раз.</div>
+ 
+<!-- PIN MODAL -->
+<div class="modal-overlay hidden" id="pin-modal">
+  <div class="modal-box">
+    <div class="modal-icon">🔐</div>
+    <div class="modal-title" id="pin-modal-title">Введи PIN</div>
+    <div class="modal-subtitle" id="pin-modal-subtitle">Секретний код героя</div>
+    <div class="pin-display">
+      <div class="pin-dot" id="pd0"></div>
+      <div class="pin-dot" id="pd1"></div>
+      <div class="pin-dot" id="pd2"></div>
+      <div class="pin-dot" id="pd3"></div>
+    </div>
+    <div class="pin-keys">
+      <button class="pin-key" onclick="pinKey('1')">1</button>
+      <button class="pin-key" onclick="pinKey('2')">2</button>
+      <button class="pin-key" onclick="pinKey('3')">3</button>
+      <button class="pin-key" onclick="pinKey('4')">4</button>
+      <button class="pin-key" onclick="pinKey('5')">5</button>
+      <button class="pin-key" onclick="pinKey('6')">6</button>
+      <button class="pin-key" onclick="pinKey('7')">7</button>
+      <button class="pin-key" onclick="pinKey('8')">8</button>
+      <button class="pin-key" onclick="pinKey('9')">9</button>
+      <button class="pin-key del" onclick="pinKey('del')">⌫</button>
+      <button class="pin-key" onclick="pinKey('0')">0</button>
+      <button class="pin-key del" onclick="pinKey('clear')">✕</button>
+    </div>
+    <div class="pin-error" id="pin-error"></div>
+    <button class="modal-cancel" onclick="closePinModal()">Скасувати</button>
   </div>
 </div>
-
+ 
 <div class="header">
   <h1>⚔️ Сімейний Квест</h1>
   <div class="subtitle">Обери свого героя</div>
 </div>
-
+ 
 <nav class="nav">
   <button class="nav-btn active" data-char="angelina" onclick="showScreen('angelina')">🧙‍♀️ Ангеліна</button>
   <button class="nav-btn" data-char="svitlana"  onclick="showScreen('svitlana')">⛏️ Світлана</button>
   <button class="nav-btn" data-char="mama"      onclick="showScreen('mama')">🌿 Мама</button>
   <button class="nav-btn" data-char="papa"      onclick="showScreen('papa')">🛡️ Тато</button>
   <button class="nav-btn" data-char="family"    onclick="showScreen('family')">🏰 Сім'я</button>
+  <button class="nav-btn" data-char="shop"      onclick="showScreen('shop')">🛒 Магазин</button>
 </nav>
-
+ 
 <!-- ANGELINA -->
 <div class="screen active angelina" id="screen-angelina">
   <div class="hero-card angelina">
@@ -245,14 +282,13 @@
   <div class="section-title">🏆 Нагороди</div>
   <div class="rewards-grid">
     <div class="reward-card" id="ar0"><div class="reward-level">РІВЕНЬ 3</div><div class="reward-icon">🍿</div><div class="reward-name">Кіно на вибір</div></div>
-    <div class="reward-card" id="ar1"><div class="reward-level">РІВЕНЬ 5</div><div class="reward-icon">v🛁</div><div class="reward-name">Спа-вечір</div></div>
+    <div class="reward-card" id="ar1"><div class="reward-level">РІВЕНЬ 5</div><div class="reward-icon">🛁</div><div class="reward-name">Спа-вечір</div></div>
     <div class="reward-card" id="ar2"><div class="reward-level">РІВЕНЬ 8</div><div class="reward-icon">🛍️</div><div class="reward-name">Шопінг на 20€</div></div>
     <div class="reward-card" id="ar3"><div class="reward-level">РІВЕНЬ 10</div><div class="reward-icon">🎡</div><div class="reward-name">Поїздка на вибір</div></div>
   </div>
- 
- <div class="pb"></div>
+  <div class="pb"></div>
 </div>
-
+ 
 <!-- SVITLANA -->
 <div class="screen svitlana" id="screen-svitlana">
   <div class="hero-card svitlana">
@@ -301,14 +337,13 @@
   <div class="section-title">🏆 Нагороди</div>
   <div class="rewards-grid">
     <div class="reward-card" id="sr0"><div class="reward-level">РІВЕНЬ 3</div><div class="reward-icon">🍿</div><div class="reward-name">Кіно на вибір</div></div>
-    <div class="reward-card" id="sr1"><div class="reward-level">РІВЕНЬ 5</div><div class="reward-icon">v🛁</div><div class="reward-name">Спа-вечір</div></div>
+    <div class="reward-card" id="sr1"><div class="reward-level">РІВЕНЬ 5</div><div class="reward-icon">🎮</div><div class="reward-name">Minecraft DLC</div></div>
     <div class="reward-card" id="sr2"><div class="reward-level">РІВЕНЬ 8</div><div class="reward-icon">🛍️</div><div class="reward-name">Шопінг на 20€</div></div>
     <div class="reward-card" id="sr3"><div class="reward-level">РІВЕНЬ 10</div><div class="reward-icon">🎡</div><div class="reward-name">Поїздка на вибір</div></div>
   </div>
-  
   <div class="pb"></div>
 </div>
-
+ 
 <!-- MAMA -->
 <div class="screen mama" id="screen-mama">
   <div class="hero-card mama">
@@ -357,14 +392,13 @@
   <div class="section-title">🏆 Нагороди</div>
   <div class="rewards-grid">
     <div class="reward-card" id="mr0"><div class="reward-level">РІВЕНЬ 3</div><div class="reward-icon">🧖‍♀️</div><div class="reward-name">Spa-вечір</div></div>
-    <div class="reward-card" id="mr1"><div class="reward-level">РІВЕНЬ 5</div><div class="reward-icon">☕</div><div class="reward-name">Кава з подругами</div></div>
-    <div class="reward-card" id="mr2"><div class="reward-level">РІВЕНЬ 8</div><div class="reward-icon">👗</div><div class="reward-name">Нава річ без докору совісті</div></div>
+    <div class="reward-card" id="mr1"><div class="reward-level">РІВЕНЬ 5</div><div class="reward-icon">🍽️</div><div class="reward-name">Вечеря в ресторані</div></div>
+    <div class="reward-card" id="mr2"><div class="reward-level">РІВЕНЬ 8</div><div class="reward-icon">🌸</div><div class="reward-name">День для себе</div></div>
     <div class="reward-card" id="mr3"><div class="reward-level">РІВЕНЬ 10</div><div class="reward-icon">✈️</div><div class="reward-name">Поїздка разом</div></div>
   </div>
-  
   <div class="pb"></div>
 </div>
-
+ 
 <!-- PAPA -->
 <div class="screen papa" id="screen-papa">
   <div class="hero-card papa">
@@ -417,10 +451,9 @@
     <div class="reward-card" id="pr2"><div class="reward-level">РІВЕНЬ 8</div><div class="reward-icon">🚗</div><div class="reward-name">Авто-день (Touareg!)</div></div>
     <div class="reward-card" id="pr3"><div class="reward-level">РІВЕНЬ 10</div><div class="reward-icon">🌊</div><div class="reward-name">Рибальська поїздка</div></div>
   </div>
-  <button class="reset-btn" onclick="resetDay('p')">🔄 Новий день — скинути квести</button>
   <div class="pb"></div>
 </div>
-
+ 
 <!-- FAMILY -->
 <div class="screen" id="screen-family">
   <div class="boss-card">
@@ -442,25 +475,42 @@
     </div>
     <div class="quest-check" id="team-check" onclick="toggleTeamBonus()" style="cursor:pointer">○</div>
   </div>
- <div class="section-title">📜 Останні події</div>
-<div class="log-feed" id="log-feed">
-  <div class="log-empty">ЗАВАНТАЖЕННЯ...</div>
-</div>
- <div class="section-title">📖 Правила гри</div>
+  <div class="section-title">📜 Останні події</div>
+  <div class="log-feed" id="log-feed"><div class="log-empty">ЗАВАНТАЖЕННЯ...</div></div>
+  <div class="section-title">📖 Правила гри</div>
   <div style="background:rgba(255,255,255,0.04);border-radius:14px;padding:14px;font-size:13px;line-height:1.9;color:rgba(255,255,255,0.7);">
     <div>1️⃣ Кожен день — 1–3 квести на вибір</div>
     <div>2️⃣ 100 XP = новий рівень</div>
     <div>3️⃣ Бонус за самостійність без нагадувань</div>
     <div>4️⃣ Якщо всі зробили daily — кожен +20 XP</div>
     <div>5️⃣ Тижнева місія — велика нагорода</div>
-    <div>6️⃣ Нагороди отримуєш при досягненні рівня!</div>
+    <div>6️⃣ В магазині витрачай XP на призи!</div>
   </div>
   <div class="pb"></div>
 </div>
-
+ 
+<!-- SHOP -->
+<div class="screen" id="screen-shop">
+  <div class="shop-header">
+    <div class="shop-title">🛒 Магазин Героїв</div>
+    <div class="shop-subtitle">ВИТРАЧАЙ XP НА ПРИЗИ</div>
+    <div class="shop-who">
+      <button class="shop-who-btn" data-c="a" onclick="selectShopChar('a')">🧙‍♀️ Ангеліна</button>
+      <button class="shop-who-btn" data-c="s" onclick="selectShopChar('s')">⛏️ Світлана</button>
+      <button class="shop-who-btn" data-c="m" onclick="selectShopChar('m')">🌿 Мама</button>
+      <button class="shop-who-btn" data-c="p" onclick="selectShopChar('p')">🛡️ Тато</button>
+    </div>
+  </div>
+  <div id="shop-no-char" class="shop-no-char">👆 Обери хто робить покупку</div>
+  <div id="shop-items"></div>
+  <div class="pb"></div>
+</div>
+ 
 <div class="toast" id="toast"></div>
-
+ 
 <script>
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFhmk08A_bK--Jt3pI1Gv4kwtfMBHeUXBnuH83zsb5AHZfFK5txf_qG1eyNSwiub4G/exec';
+ 
 const POLL_INTERVAL = 5 * 60 * 1000;
 const CHARS = ['a','s','m','p'];
 const CHAR_NAMES  = { a:'Ангеліна', s:'Світлана', m:'Мама', p:'Тато' };
@@ -468,19 +518,7 @@ const CHAR_ICONS  = { a:'🧙‍♀️', s:'⛏️', m:'🌿', p:'🛡️' };
 const BOSSES = ['🐉 Дракон Лінощів','🕷️ Павук Безладдя','👹 Монстр Відкладань','🧟 Зомбі Нудьги','🦂 Скорпіон Забудькуватості'];
 const BOSS_GOAL = 200;
 const REWARD_LEVELS = [3,5,8,10];
-
-let SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxnc3jDz4aUQutT6Up0v60MWXaZD2FXm0J9huop8W2u2eAGn-6UzmxRiJtJXJzaBeLg/exec';
-localStorage.setItem('fq_script_url', SCRIPT_URL);
-
-function saveScriptUrl() {
-  const val = document.getElementById('script-url-input').value.trim();
-  if (!val.startsWith('https://script.google.com')) { alert('Невірний URL'); return; }
-  SCRIPT_URL = val;
-  localStorage.setItem('fq_script_url', val);
-  document.getElementById('setup-screen').style.display = 'none';
-  initApp();
-}
-
+ 
 function defaultState() {
   const st = { teamBonus: false };
   CHARS.forEach(c => { st[c] = { xp:0, streak:0, lastDay:'', quests:[false,false,false,false] }; });
@@ -488,17 +526,20 @@ function defaultState() {
 }
 let state = defaultState();
 let extraQuestsData = {};
-
+let shopData = [];
+let shopChar = null;
+ 
 async function apiGet() {
   const res = await fetch(SCRIPT_URL, { method:'GET', mode:'cors' });
   return res.json();
 }
 async function apiPost(payload) {
-  await fetch(SCRIPT_URL, { method:'POST', mode:'cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(payload) });
+  const res = await fetch(SCRIPT_URL, { method:'POST', mode:'cors', headers:{'Content-Type':'text/plain'}, body:JSON.stringify(payload) });
+  return res.json();
 }
-
+ 
 async function syncFromSheets(silent = false) {
-  if (!SCRIPT_URL) return;
+  if (!SCRIPT_URL || SCRIPT_URL === 'ВСТАВИТИ_URL_ТУТ') return;
   setSyncState('syncing');
   try {
     const data = await apiGet();
@@ -513,8 +554,10 @@ async function syncFromSheets(silent = false) {
     });
     state.teamBonus = !!data.teamBonus;
     extraQuestsData = data.extraQuests || {};
+    shopData = data.shop || [];
     renderLog(data.log || []);
-	renderAll();
+    renderAll();
+    if (shopChar) renderShopItems();
     CHARS.forEach(c => {
       const panel = document.getElementById(`extra-panel-${c}`);
       if (panel && panel.classList.contains('open')) renderExtraList(c);
@@ -523,14 +566,14 @@ async function syncFromSheets(silent = false) {
     if (!silent) showToast('🔄 Дані синхронізовано');
   } catch(e) { setSyncState('error'); console.error(e); }
 }
-
+ 
 function setSyncState(s) {
   document.getElementById('sync-bar').className = 'sync-bar ' + s;
   const st = document.getElementById('sync-status');
   st.className = 'sync-status ' + (s==='ok'?'live':s==='error'?'err':'');
   st.textContent = s==='ok'?'● LIVE':s==='error'?'● ERR':'● SYNC';
 }
-
+ 
 function xpForLevel(lvl) { return lvl * 100; }
 function getLevel(xp) {
   let lvl=1, total=0;
@@ -540,7 +583,7 @@ function getLevel(xp) {
     total += needed; lvl++;
   }
 }
-
+ 
 function renderChar(c) {
   const d = state[c], lvl = getLevel(d.xp);
   document.getElementById(`${c}-xp`).textContent    = d.xp;
@@ -558,7 +601,7 @@ function renderChar(c) {
     if (el) { lvl.level>=rl ? el.classList.add('unlocked') : el.classList.remove('unlocked'); }
   });
 }
-
+ 
 function renderFamily() {
   const sorted = CHARS.map(c=>({c,xp:state[c].xp,level:getLevel(state[c].xp).level})).sort((a,b)=>b.xp-a.xp);
   const medals = ['🥇','🥈','🥉','🏅'];
@@ -576,9 +619,132 @@ function renderFamily() {
   document.getElementById('boss-fill').style.width    = Math.min(100,bossProgress/BOSS_GOAL*100)+'%';
   document.getElementById('team-check').textContent   = state.teamBonus ? '✅' : '○';
 }
-
+ 
+function renderLog(logItems) {
+  const container = document.getElementById('log-feed');
+  if (!logItems || logItems.length === 0) {
+    container.innerHTML = '<div class="log-empty">ПОКИ ЩО ПОРОЖНЬО — ВИКОНАЙТЕ ПЕРШИЙ КВЕСТ!</div>';
+    return;
+  }
+  container.innerHTML = logItems.map(item => {
+    const isSpend = item.xp < 0;
+    return `<div class="log-item">
+      <div class="log-avatar">${CHAR_ICONS[item.char] || '⭐'}</div>
+      <div class="log-text">
+        ${CHAR_NAMES[item.char] || item.char} — ${item.questName}
+        <span class="${isSpend?'spent':''}">${isSpend?'':'+'}${item.xp} XP</span>
+      </div>
+      <div class="log-time">${item.dateStr}</div>
+    </div>`;
+  }).join('');
+}
+ 
 function renderAll() { CHARS.forEach(renderChar); renderFamily(); }
-
+ 
+// SHOP
+function selectShopChar(c) {
+  shopChar = c;
+  document.querySelectorAll('.shop-who-btn').forEach(b => b.classList.remove('selected'));
+  document.querySelector(`.shop-who-btn[data-c="${c}"]`).classList.add('selected');
+  document.getElementById('shop-no-char').style.display = 'none';
+  renderShopItems();
+}
+ 
+function renderShopItems() {
+  const container = document.getElementById('shop-items');
+  if (!shopChar) return;
+  const myXP = state[shopChar].xp;
+  if (!shopData || shopData.length === 0) {
+    container.innerHTML = '<div class="shop-no-char">Магазин порожній — додай товари в таблицю</div>';
+    return;
+  }
+  container.innerHTML = shopData.map((item,i) => `
+    <div class="shop-item">
+      <div class="shop-item-icon">${item.icon}</div>
+      <div class="shop-item-info">
+        <div class="shop-item-name">${item.name}</div>
+        <div class="shop-item-cost">🔥 ${item.xp_cost} XP${myXP < item.xp_cost ? ' · не вистачає '+(item.xp_cost-myXP)+' XP' : ''}</div>
+      </div>
+      <button class="shop-buy-btn" ${myXP < item.xp_cost ? 'disabled' : ''} onclick="initBuy(${i})">Купити</button>
+    </div>`).join('');
+}
+ 
+// PIN LOGIC
+let pinBuffer = '';
+let pinCallback = null;
+let pinChar = null;
+ 
+function openPinModal(c, callback) {
+  pinChar = c;
+  pinCallback = callback;
+  pinBuffer = '';
+  updatePinDots();
+  document.getElementById('pin-error').textContent = '';
+  document.getElementById('pin-modal-title').textContent = `PIN для ${CHAR_NAMES[c]}`;
+  document.getElementById('pin-modal-subtitle').textContent = 'Введи свій секретний код';
+  document.getElementById('pin-modal').classList.remove('hidden');
+}
+ 
+function closePinModal() {
+  document.getElementById('pin-modal').classList.add('hidden');
+  pinBuffer = ''; pinCallback = null; pinChar = null;
+}
+ 
+function updatePinDots() {
+  for (let i = 0; i < 4; i++) {
+    document.getElementById(`pd${i}`).classList.toggle('filled', i < pinBuffer.length);
+  }
+}
+ 
+function pinKey(k) {
+  if (k === 'del') { pinBuffer = pinBuffer.slice(0,-1); updatePinDots(); return; }
+  if (k === 'clear') { pinBuffer = ''; updatePinDots(); return; }
+  if (pinBuffer.length >= 4) return;
+  pinBuffer += k;
+  updatePinDots();
+  if (pinBuffer.length === 4) checkPin();
+}
+ 
+async function checkPin() {
+  document.getElementById('pin-error').textContent = '';
+  try {
+    const res = await apiPost({ action:'verifyPin', char:pinChar, pin:pinBuffer });
+    if (res.valid) {
+      closePinModal();
+      if (pinCallback) pinCallback();
+    } else {
+      document.getElementById('pin-error').textContent = '❌ Невірний PIN, спробуй ще';
+      pinBuffer = '';
+      updatePinDots();
+    }
+  } catch(e) {
+    document.getElementById('pin-error').textContent = '⚠️ Помилка підключення';
+    pinBuffer = '';
+    updatePinDots();
+  }
+}
+ 
+function initBuy(idx) {
+  const item = shopData[idx];
+  if (!item || !shopChar) return;
+  openPinModal(shopChar, () => completeBuy(idx));
+}
+ 
+async function completeBuy(idx) {
+  const item = shopData[idx];
+  const d = state[shopChar];
+  if (d.xp < item.xp_cost) { showToast('❌ Не вистачає XP!'); return; }
+  d.xp -= item.xp_cost;
+  renderChar(shopChar);
+  renderShopItems();
+  showToast(`${item.icon} ${item.name} — куплено! -${item.xp_cost} XP`);
+  setSyncState('syncing');
+  try {
+    await apiPost({ action:'buyItem', char:shopChar, xp:d.xp, streak:d.streak, lastDay:d.lastDay, itemName:item.name, itemCost:item.xp_cost });
+    setSyncState('ok');
+  } catch(e) { setSyncState('error'); }
+}
+ 
 async function toggleQuest(c, idx, xp, icon, cardEl) {
   const d = state[c], wasDone = d.quests[idx];
   d.quests[idx] = !wasDone;
@@ -596,12 +762,12 @@ async function toggleQuest(c, idx, xp, icon, cardEl) {
   renderChar(c); renderFamily();
   setSyncState('syncing');
   try {
-    await apiPost({action:'updateChar',  char:c, xp:d.xp, streak:d.streak, lastDay:d.lastDay});
+    await apiPost({action:'updateChar', char:c, xp:d.xp, streak:d.streak, lastDay:d.lastDay});
     await apiPost({action:'updateQuests', char:c, quests:d.quests});
     setSyncState('ok');
   } catch(e) { setSyncState('error'); }
 }
-
+ 
 async function toggleTeamBonus() {
   state.teamBonus = !state.teamBonus;
   CHARS.forEach(c => { state[c].xp = Math.max(0, state[c].xp + (state.teamBonus?20:-20)); });
@@ -614,16 +780,7 @@ async function toggleTeamBonus() {
     setSyncState('ok');
   } catch(e) { setSyncState('error'); }
 }
-
-async function resetDay(c) {
-  if (!confirm(`Скинути квести для ${CHAR_NAMES[c]}? (XP залишається)`)) return;
-  state[c].quests = [false,false,false,false];
-  renderChar(c);
-  setSyncState('syncing');
-  try { await apiPost({action:'resetDay', char:c}); setSyncState('ok'); }
-  catch(e) { setSyncState('error'); }
-}
-
+ 
 function toggleExtraPanel(c) {
   const btn=document.getElementById(`extra-btn-${c}`), panel=document.getElementById(`extra-panel-${c}`);
   const isOpen = panel.classList.contains('open');
@@ -633,7 +790,7 @@ function toggleExtraPanel(c) {
   });
   if (!isOpen) { btn.classList.add('open'); panel.classList.add('open'); renderExtraList(c); }
 }
-
+ 
 function renderExtraList(c) {
   const container = document.getElementById(`extra-list-${c}`);
   const quests = extraQuestsData[c];
@@ -648,7 +805,7 @@ function renderExtraList(c) {
       <div class="extra-quest-xp">+${q.xp} XP</div>
     </div>`).join('');
 }
-
+ 
 async function doExtraQuest(c, idx) {
   const q = extraQuestsData[c][idx];
   if (!q) return;
@@ -666,24 +823,27 @@ async function doExtraQuest(c, idx) {
   showToast(`${q.icon} ${q.name} — +${q.xp} XP!`);
   renderChar(c); renderFamily();
   setSyncState('syncing');
-  try { await apiPost({action:'extraQuest', char:c, xp:d.xp, streak:d.streak, lastDay:d.lastDay, questName:q.name, questXp:q.xp}); setSyncState('ok'); }
-  catch(e) { setSyncState('error'); }
+  try {
+    await apiPost({action:'extraQuest', char:c, xp:d.xp, streak:d.streak, lastDay:d.lastDay, questName:q.name, questXp:q.xp});
+    setSyncState('ok');
+  } catch(e) { setSyncState('error'); }
 }
-
+ 
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.querySelectorAll('.nav-btn').forEach(b=>b.classList.remove('active'));
   document.getElementById('screen-'+name).classList.add('active');
   document.querySelector(`[data-char="${name}"]`).classList.add('active');
   if (name==='family') renderFamily();
+  if (name==='shop') renderShopItems();
 }
-
+ 
 function showToast(msg) {
   const t=document.getElementById('toast');
   t.textContent=msg; t.classList.add('show');
   setTimeout(()=>t.classList.remove('show'),2500);
 }
-
+ 
 function showBurst(text,x,y,color) {
   const el=document.createElement('div');
   el.className='xp-burst'; el.textContent=text;
@@ -691,34 +851,15 @@ function showBurst(text,x,y,color) {
   document.body.appendChild(el);
   setTimeout(()=>el.remove(),1000);
 }
-function renderLog(logItems) {
-  const container = document.getElementById('log-feed');
-  if (!logItems || logItems.length === 0) {
-    container.innerHTML = '<div class="log-empty">ПОКИ ЩО ПОРОЖНЬО — ВИКОНАЙТЕ ПЕРШИЙ КВЕСТ!</div>';
-    return;
-  }
-  container.innerHTML = logItems.map(item => `
-    <div class="log-item">
-      <div class="log-avatar">${CHAR_ICONS[item.char] || '⭐'}</div>
-      <div class="log-text">
-        ${CHAR_NAMES[item.char] || item.char} — ${item.questName}
-        <span>+${item.xp} XP</span>
-      </div>
-      <div class="log-time">${item.dateStr}</div>
-    </div>
-  `).join('');
-}
+ 
 function initApp() {
   renderAll();
   syncFromSheets(true);
   setInterval(()=>syncFromSheets(true), POLL_INTERVAL);
 }
-
-if (SCRIPT_URL) {
-  document.getElementById('setup-screen').style.display = 'none';
-  document.getElementById('script-url-input').value = SCRIPT_URL;
-  initApp();
-}
+ 
+initApp();
 </script>
 </body>
 </html>
+ 
