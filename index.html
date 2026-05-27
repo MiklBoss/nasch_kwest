@@ -273,7 +273,8 @@
   </div>
   <button class="extra-btn" id="extra-btn-a" onclick="toggleExtraPanel('a')">➕ Квест на вибір <i class="arrow">▾</i></button>
   <div class="extra-panel" id="extra-panel-a"><div class="extra-panel-inner" id="extra-list-a"><div class="extra-loading">ЗАВАНТАЖЕННЯ...</div></div></div>
-  <div class="section-title">📅 Тижнева місія</div>
+  <div class="section-title">🎯 Моя ціль</div>
+  <div class="quest-name" id="goal-a">Моя ціль</div>
   <div class="quest-card bonus-type" id="aq3" onclick="toggleQuest('a',3,50,'🦄',this)">
     <div class="quest-icon">🦄</div>
     <div class="quest-info"><div class="quest-name">Завершити великий блок справ</div><div class="quest-type">WEEKLY · 50 XP</div></div>
@@ -328,7 +329,8 @@
   </div>
   <button class="extra-btn" id="extra-btn-s" onclick="toggleExtraPanel('s')">➕ Квест на вибір <i class="arrow">▾</i></button>
   <div class="extra-panel" id="extra-panel-s"><div class="extra-panel-inner" id="extra-list-s"><div class="extra-loading">ЗАВАНТАЖЕННЯ...</div></div></div>
-  <div class="section-title">📅 Тижнева місія</div>
+  <div class="section-title">🎯 Моя ціль</div>
+  <div class="quest-name" id="goal-s">Моя ціль</div>
   <div class="quest-card bonus-type" id="sq3" onclick="toggleQuest('s',3,50,'🏗️',this)">
     <div class="quest-icon">🏗️</div>
     <div class="quest-info"><div class="quest-name">Завершити великий блок справ</div><div class="quest-type">WEEKLY · 50 XP</div></div>
@@ -383,7 +385,8 @@
   </div>
   <button class="extra-btn" id="extra-btn-m" onclick="toggleExtraPanel('m')">➕ Квест на вибір <i class="arrow">▾</i></button>
   <div class="extra-panel" id="extra-panel-m"><div class="extra-panel-inner" id="extra-list-m"><div class="extra-loading">ЗАВАНТАЖЕННЯ...</div></div></div>
-  <div class="section-title">📅 Тижнева місія</div>
+  <div class="section-title">🎯 Моя ціль</div>
+  <div class="quest-name" id="goal-m">Моя ціль</div>
   <div class="quest-card bonus-type" id="mq3" onclick="toggleQuest('m',3,50,'🌟',this)">
     <div class="quest-icon">🌟</div>
     <div class="quest-info"><div class="quest-name">Завершити великий блок справ</div><div class="quest-type">WEEKLY · 50 XP</div></div>
@@ -438,7 +441,8 @@
   </div>
   <button class="extra-btn" id="extra-btn-p" onclick="toggleExtraPanel('p')">➕ Квест на вибір <i class="arrow">▾</i></button>
   <div class="extra-panel" id="extra-panel-p"><div class="extra-panel-inner" id="extra-list-p"><div class="extra-loading">ЗАВАНТАЖЕННЯ...</div></div></div>
-  <div class="section-title">📅 Тижнева місія</div>
+  <div class="section-title">🎯 Моя ціль</div>
+  <div class="quest-name" id="goal-p">Моя ціль</div>
   <div class="quest-card bonus-type" id="pq3" onclick="toggleQuest('p',3,50,'🏆',this)">
     <div class="quest-icon">🏆</div>
     <div class="quest-info"><div class="quest-name">Завершити великий блок роботи</div><div class="quest-type">WEEKLY · 50 XP</div></div>
@@ -509,7 +513,7 @@
 <div class="toast" id="toast"></div>
  
 <script>
-const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwtDO0l0CGsQ978TjIcDfFuc3QibxJAkF6Ue9_bTleMW6xS4k9Bpx3kC8gHgBTQkPro/exec';
+const SCRIPT_URL ='https://script.google.com/macros/s/AKfycbyDBrW6HtR6qACEKspLfskf0uIcfEXLgV0z80o_x8GCczGsIJFPhhu33nu9isoWqMA/exec';
  
 const POLL_INTERVAL = 5 * 60 * 1000;
 const CHARS = ['a','s','m','p'];
@@ -527,6 +531,7 @@ function defaultState() {
 let state = defaultState();
 let extraQuestsData = {};
 let shopData = [];
+let goalsData = {};
 let shopChar = null;
  
 async function apiGet() {
@@ -566,8 +571,9 @@ async function syncFromSheets(silent = false) {
     if (!silent) showToast('🔄 Дані синхронізовано');
   } catch(e) { setSyncState('error'); console.error(e); }
 }
- 
-function setSyncState(s) {
+goalsData = data.goals || {}; 
+
+  function setSyncState(s) {
   document.getElementById('sync-bar').className = 'sync-bar ' + s;
   const st = document.getElementById('sync-status');
   st.className = 'sync-status ' + (s==='ok'?'live':s==='error'?'err':'');
@@ -601,8 +607,13 @@ function renderChar(c) {
     if (el) { lvl.level>=rl ? el.classList.add('unlocked') : el.classList.remove('unlocked'); }
   });
 }
- 
-function renderFamily() {
+ const goalEl = document.getElementById(`goal-${c}`);
+
+if (goalEl) {
+  goalEl.textContent = goalsData[c] || 'Моя ціль';
+}
+
+  function renderFamily() {
   const sorted = CHARS.map(c=>({c,xp:state[c].xp,level:getLevel(state[c].xp).level})).sort((a,b)=>b.xp-a.xp);
   const medals = ['🥇','🥈','🥉','🏅'];
   document.getElementById('leaderboard').innerHTML = sorted.map((item,i)=>`
