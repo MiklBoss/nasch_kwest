@@ -766,10 +766,7 @@ async function completeBuy(idx) {
   }
 }
 
-await syncFromSheets(true);
-setSyncState('ok');
- 
-async function toggleQuest(c, idx, xp, icon, cardEl) {
+ async function toggleQuest(c, idx, xp, icon, cardEl) {
   const d = state[c], wasDone = d.quests[idx];
   d.quests[idx] = !wasDone;
   d.xp = Math.max(0, wasDone ? d.xp-xp : d.xp+xp);
