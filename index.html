@@ -709,9 +709,11 @@ async function checkPin() {
   document.getElementById('pin-error').textContent = '';
   try {
     const res = await apiPost({ action:'verifyPin', char:pinChar, pin:pinBuffer });
+
     if (res.valid) {
+      const cb = pinCallback;
       closePinModal();
-      if (pinCallback) pinCallback();
+      if (cb) cb();
     } else {
       document.getElementById('pin-error').textContent = '❌ Невірний PIN, спробуй ще';
       pinBuffer = '';
