@@ -602,10 +602,19 @@ function renderChar(c) {
   document.getElementById(`${c}-streak`).textContent = d.streak;
   document.getElementById(`${c}-bar`).style.width = Math.min(100,Math.round(lvl.current/lvl.needed*100))+'%';
   for (let i=0;i<4;i++) {
-    const card=document.getElementById(`${c}q${i}`), check=document.getElementById(`${c}q${i}-check`);
-    if (d.quests[i]) { card.classList.add('done'); check.textContent='✅'; }
-    else { card.classList.remove('done'); check.textContent='○'; }
+  const card = document.getElementById(`${c}q${i}`);
+  const check = document.getElementById(`${c}q${i}-check`);
+
+  if (!card || !check) continue;
+
+  if (d.quests[i]) {
+    card.classList.add('done');
+    check.textContent = '✅';
+  } else {
+    card.classList.remove('done');
+    check.textContent = '○';
   }
+}
   REWARD_LEVELS.forEach((rl,i) => {
   const el=document.getElementById(`${c}r${i}`);
   if (el) {
