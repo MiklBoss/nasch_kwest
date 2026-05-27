@@ -742,10 +742,18 @@ async function completeBuy(idx) {
   showToast(`${item.icon} ${item.name} — куплено! -${item.xp_cost} XP`);
   setSyncState('syncing');
   try {
-    await apiPost({ action:'buyItem', char:shopChar, xp:d.xp, streak:d.streak, lastDay:d.lastDay, itemName:item.name, itemCost:item.xp_cost });
-    setSyncState('ok');
-  } catch(e) { setSyncState('error'); }
-}
+    await apiPost({
+  action:'buyItem',
+  char:shopChar,
+  xp:d.xp,
+  streak:d.streak,
+  lastDay:d.lastDay,
+  itemName:item.name,
+  itemCost:item.xp_cost
+});
+
+await syncFromSheets(true);
+setSyncState('ok');
  
 async function toggleQuest(c, idx, xp, icon, cardEl) {
   const d = state[c], wasDone = d.quests[idx];
