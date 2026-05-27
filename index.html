@@ -274,11 +274,13 @@
   <button class="extra-btn" id="extra-btn-a" onclick="toggleExtraPanel('a')">➕ Квест на вибір <i class="arrow">▾</i></button>
   <div class="extra-panel" id="extra-panel-a"><div class="extra-panel-inner" id="extra-list-a"><div class="extra-loading">ЗАВАНТАЖЕННЯ...</div></div></div>
   <div class="section-title">🎯 Моя ціль</div>
-<div class="quest-card bonus-type">
-  <div class="quest-icon">🎯</div>
+<div class="quest-card bonus-type" onclick="doGoalQuest('a')">
+  <div class="quest-icon" id="goal-icon-a">🎯</div>
   <div class="quest-info">
     <div class="quest-name" id="goal-a">Моя ціль</div>
-    <div class="quest-type">РЕДАГУЄТЬСЯ В GOOGLE SHEETS</div>
+    <div class="quest-type" id="goal-xp-a">ЦІЛЬ · +50 XP</div>
+  </div>
+  <div class="quest-check">＋</div>
 </div>
   </div>
   <div class="section-title">🏆 Нагороди</div>
@@ -331,11 +333,13 @@
   <button class="extra-btn" id="extra-btn-s" onclick="toggleExtraPanel('s')">➕ Квест на вибір <i class="arrow">▾</i></button>
   <div class="extra-panel" id="extra-panel-s"><div class="extra-panel-inner" id="extra-list-s"><div class="extra-loading">ЗАВАНТАЖЕННЯ...</div></div></div>
   <div class="section-title">🎯 Моя ціль</div>
-<div class="quest-card bonus-type">
-  <div class="quest-icon">🎯</div>
+<div class="quest-card bonus-type" onclick="doGoalQuest('a')">
+  <div class="quest-icon" id="goal-icon-s">🎯</div>
   <div class="quest-info">
     <div class="quest-name" id="goal-s">Моя ціль</div>
-    <div class="quest-type">РЕДАГУЄТЬСЯ В GOOGLE SHEETS</div>
+    <div class="quest-type" id="goal-xp-s">ЦІЛЬ · +50 XP</div>
+  </div>
+  <div class="quest-check">＋</div>
 </div>
   </div>
   <div class="section-title">🏆 Нагороди</div>
@@ -388,11 +392,13 @@
   <button class="extra-btn" id="extra-btn-m" onclick="toggleExtraPanel('m')">➕ Квест на вибір <i class="arrow">▾</i></button>
   <div class="extra-panel" id="extra-panel-m"><div class="extra-panel-inner" id="extra-list-m"><div class="extra-loading">ЗАВАНТАЖЕННЯ...</div></div></div>
   <div class="section-title">🎯 Моя ціль</div>
-<div class="quest-card bonus-type">
-  <div class="quest-icon">🎯</div>
+<div class="quest-card bonus-type" onclick="doGoalQuest('a')">
+  <div class="quest-icon" id="goal-icon-m">🎯</div>
   <div class="quest-info">
     <div class="quest-name" id="goal-m">Моя ціль</div>
-    <div class="quest-type">РЕДАГУЄТЬСЯ В GOOGLE SHEETS</div>
+    <div class="quest-type" id="goal-xp-m">ЦІЛЬ · +50 XP</div>
+  </div>
+  <div class="quest-check">＋</div>
 </div>
   </div>
   <div class="section-title">🏆 Нагороди</div>
@@ -445,11 +451,13 @@
   <button class="extra-btn" id="extra-btn-p" onclick="toggleExtraPanel('p')">➕ Квест на вибір <i class="arrow">▾</i></button>
   <div class="extra-panel" id="extra-panel-p"><div class="extra-panel-inner" id="extra-list-p"><div class="extra-loading">ЗАВАНТАЖЕННЯ...</div></div></div>
   <div class="section-title">🎯 Моя ціль</div>
-<div class="quest-card bonus-type">
-  <div class="quest-icon">🎯</div>
+<div class="quest-card bonus-type" onclick="doGoalQuest('a')">
+  <div class="quest-icon" id="goal-icon-p">🎯</div>
   <div class="quest-info">
     <div class="quest-name" id="goal-p">Моя ціль</div>
-    <div class="quest-type">РЕДАГУЄТЬСЯ В GOOGLE SHEETS</div>
+    <div class="quest-type" id="goal-xp-p">ЦІЛЬ · +50 XP</div>
+  </div>
+  <div class="quest-check">＋</div>
 </div>
   </div>
   <div class="section-title">🏆 Нагороди</div>
@@ -517,7 +525,7 @@
 <div class="toast" id="toast"></div>
  
 <script>
-const SCRIPT_URL ='https://script.google.com/macros/s/AKfycbyDBrW6HtR6qACEKspLfskf0uIcfEXLgV0z80o_x8GCczGsIJFPhhu33nu9isoWqMA/exec';
+const SCRIPT_URL ='https://script.google.com/macros/s/AKfycbxPhfR6sN1QKmFE_E5aflx2ZzhOwy-KBwPw_44YGcUkoObYYCxb-ogL6G6pe2Dsp9FK/exec';
  
 const POLL_INTERVAL = 5 * 60 * 1000;
 const CHARS = ['a','s','m','p'];
@@ -622,12 +630,14 @@ function renderChar(c) {
   }
 });
 
+const goal = goalsData[c] || {};
 const goalEl = document.getElementById(`goal-${c}`);
+const goalXpEl = document.getElementById(`goal-xp-${c}`);
+const goalIconEl = document.getElementById(`goal-icon-${c}`);
 
-if (goalEl) {
-  goalEl.textContent = goalsData[c] || 'Моя ціль';
-}
-}
+if (goalEl) goalEl.textContent = goal.goal || 'Моя ціль';
+if (goalXpEl) goalXpEl.textContent = `ЦІЛЬ · +${goal.xp || 50} XP`;
+if (goalIconEl) goalIconEl.textContent = goal.icon || '🎯';
   
   function renderFamily() {
   const sorted = CHARS.map(c=>({c,xp:state[c].xp,level:getLevel(state[c].xp).level})).sort((a,b)=>b.xp-a.xp);
@@ -853,7 +863,46 @@ function renderExtraList(c) {
       <div class="extra-quest-xp">+${q.xp} XP</div>
     </div>`).join('');
 }
- 
+ async function doGoalQuest(c) {
+  const goal = goalsData[c] || {};
+  const xp = Number(goal.xp) || 50;
+  const name = goal.goal || 'Моя ціль';
+  const icon = goal.icon || '🎯';
+
+  const d = state[c];
+  d.xp += xp;
+
+  const today = new Date().toDateString();
+  if (d.lastDay !== today) {
+    d.streak = d.lastDay === new Date(Date.now() - 86400000).toDateString()
+      ? d.streak + 1
+      : 1;
+    d.lastDay = today;
+  }
+
+  showToast(`${icon} ${name} — +${xp} XP!`);
+  renderChar(c);
+  renderFamily();
+
+  setSyncState('syncing');
+
+  try {
+    await apiPost({
+      action:'extraQuest',
+      char:c,
+      xp:d.xp,
+      streak:d.streak,
+      lastDay:d.lastDay,
+      questName:name,
+      questXp:xp
+    });
+
+    setSyncState('ok');
+    await syncFromSheets(true);
+  } catch(e) {
+    setSyncState('error');
+  }
+}
 async function doExtraQuest(c, idx) {
   const q = extraQuestsData[c][idx];
   if (!q) return;
