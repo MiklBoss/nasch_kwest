@@ -560,6 +560,7 @@ async function syncFromSheets(silent = false) {
     state.teamBonus = !!data.teamBonus;
     extraQuestsData = data.extraQuests || {};
     shopData = data.shop || [];
+    goalsData = data.goals || {};
     renderLog(data.log || []);
     renderAll();
     if (shopChar) renderShopItems();
@@ -571,8 +572,7 @@ async function syncFromSheets(silent = false) {
     if (!silent) showToast('🔄 Дані синхронізовано');
   } catch(e) { setSyncState('error'); console.error(e); }
 }
-goalsData = data.goals || {}; 
-
+ 
   function setSyncState(s) {
   document.getElementById('sync-bar').className = 'sync-bar ' + s;
   const st = document.getElementById('sync-status');
@@ -603,16 +603,17 @@ function renderChar(c) {
     else { card.classList.remove('done'); check.textContent='○'; }
   }
   REWARD_LEVELS.forEach((rl,i) => {
-    const el=document.getElementById(`${c}r${i}`);
-    if (el) { lvl.level>=rl ? el.classList.add('unlocked') : el.classList.remove('unlocked'); }
-  });
-}
- const goalEl = document.getElementById(`goal-${c}`);
+  const el=document.getElementById(`${c}r${i}`);
+  if (el) {
+    lvl.level>=rl ? el.classList.add('unlocked') : el.classList.remove('unlocked');
+  }
+});
+
+const goalEl = document.getElementById(`goal-${c}`);
 
 if (goalEl) {
   goalEl.textContent = goalsData[c] || 'Моя ціль';
 }
-
   function renderFamily() {
   const sorted = CHARS.map(c=>({c,xp:state[c].xp,level:getLevel(state[c].xp).level})).sort((a,b)=>b.xp-a.xp);
   const medals = ['🥇','🥈','🥉','🏅'];
