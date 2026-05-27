@@ -735,22 +735,36 @@ function initBuy(idx) {
 async function completeBuy(idx) {
   const item = shopData[idx];
   const d = state[shopChar];
-  if (d.xp < item.xp_cost) { showToast('❌ Не вистачає XP!'); return; }
+
+  if (d.xp < item.xp_cost) {
+    showToast('❌ Не вистачає XP!');
+    return;
+  }
+
   d.xp -= item.xp_cost;
   renderChar(shopChar);
   renderShopItems();
   showToast(`${item.icon} ${item.name} — куплено! -${item.xp_cost} XP`);
   setSyncState('syncing');
+
   try {
     await apiPost({
-  action:'buyItem',
-  char:shopChar,
-  xp:d.xp,
-  streak:d.streak,
-  lastDay:d.lastDay,
-  itemName:item.name,
-  itemCost:item.xp_cost
-});
+      action:'buyItem',
+      char:shopChar,
+      xp:d.xp,
+      streak:d.streak,
+      lastDay:d.lastDay,
+      itemName:item.name,
+      itemCost:item.xp_cost
+    });
+
+    await syncFromSheets(true);
+    setSyncState('ok');
+  } catch(e) {
+    setSyncState('error');
+    console.error(e);
+  }
+}
 
 await syncFromSheets(true);
 setSyncState('ok');
