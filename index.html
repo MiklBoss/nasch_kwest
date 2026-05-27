@@ -638,7 +638,7 @@ const goalIconEl = document.getElementById(`goal-icon-${c}`);
 if (goalEl) goalEl.textContent = goal.goal || 'Моя ціль';
 if (goalXpEl) goalXpEl.textContent = `ЦІЛЬ · +${goal.xp || 50} XP`;
 if (goalIconEl) goalIconEl.textContent = goal.icon || '🎯';
-  
+  }
   function renderFamily() {
   const sorted = CHARS.map(c=>({c,xp:state[c].xp,level:getLevel(state[c].xp).level})).sort((a,b)=>b.xp-a.xp);
   const medals = ['🥇','🥈','🥉','🏅'];
