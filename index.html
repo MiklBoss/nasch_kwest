@@ -509,6 +509,13 @@
 <div class="toast" id="toast"></div>
  
 <script>
+window.addEventListener('error', e => {
+  alert('JS ERROR: ' + e.message);
+});
+
+window.addEventListener('unhandledrejection', e => {
+  alert('PROMISE ERROR: ' + e.reason);
+});
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxFhmk08A_bK--Jt3pI1Gv4kwtfMBHeUXBnuH83zsb5AHZfFK5txf_qG1eyNSwiub4G/exec';
  
 const POLL_INTERVAL = 5 * 60 * 1000;
@@ -862,12 +869,30 @@ function showBurst(text,x,y,color) {
   setTimeout(()=>el.remove(),1000);
 }
  
-function initApp() {
-  renderAll();
-  syncFromSheets(true);
-  setInterval(()=>syncFromSheets(true), POLL_INTERVAL);
+async function initApp() {
+  try {
+    renderAll();
+  } catch(e) {
+    console.error('renderAll error', e);
+    alert('renderAll error: ' + e.message);
+  }
+
+  try {
+    await syncFromSheets(true);
+  } catch(e) {
+    console.error('sync error', e);
+    setSyncState('error');
+    alert('sync error: ' + e.message);
+  }
+
+  setInterval(() => {
+    syncFromSheets(true).catch(e => {
+      console.error('sync interval error', e);
+      setSyncState('error');
+    });
+  }, POLL_INTERVAL);
 }
- 
+
 initApp();
 </script>
 </body>
