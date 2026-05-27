@@ -614,6 +614,8 @@ const goalEl = document.getElementById(`goal-${c}`);
 if (goalEl) {
   goalEl.textContent = goalsData[c] || 'Моя ціль';
 }
+}
+  
   function renderFamily() {
   const sorted = CHARS.map(c=>({c,xp:state[c].xp,level:getLevel(state[c].xp).level})).sort((a,b)=>b.xp-a.xp);
   const medals = ['🥇','🥈','🥉','🏅'];
