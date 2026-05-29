@@ -346,7 +346,7 @@
   <button class="extra-btn" id="extra-btn-s" onclick="toggleExtraPanel('s')">➕ Квест на вибір <i class="arrow">▾</i></button>
   <div class="extra-panel" id="extra-panel-s"><div class="extra-panel-inner" id="extra-list-s"><div class="extra-loading">ЗАВАНТАЖЕННЯ...</div></div></div>
   <div class="section-title">🎯 Моя ціль</div>
-<div class="quest-card bonus-type" onclick="doGoalQuest('a')">
+<div class="quest-card bonus-type" onclick="doGoalQuest('s')">
   <div class="quest-icon" id="goal-icon-s">🎯</div>
   <div class="quest-info">
     <div class="quest-name" id="goal-s">Моя ціль</div>
@@ -404,7 +404,7 @@
   <button class="extra-btn" id="extra-btn-m" onclick="toggleExtraPanel('m')">➕ Квест на вибір <i class="arrow">▾</i></button>
   <div class="extra-panel" id="extra-panel-m"><div class="extra-panel-inner" id="extra-list-m"><div class="extra-loading">ЗАВАНТАЖЕННЯ...</div></div></div>
   <div class="section-title">🎯 Моя ціль</div>
-<div class="quest-card bonus-type" onclick="doGoalQuest('a')">
+<div class="quest-card bonus-type" onclick="doGoalQuest('m')">
   <div class="quest-icon" id="goal-icon-m">🎯</div>
   <div class="quest-info">
     <div class="quest-name" id="goal-m">Моя ціль</div>
@@ -461,7 +461,7 @@
   <button class="extra-btn" id="extra-btn-p" onclick="toggleExtraPanel('p')">➕ Квест на вибір <i class="arrow">▾</i></button>
   <div class="extra-panel" id="extra-panel-p"><div class="extra-panel-inner" id="extra-list-p"><div class="extra-loading">ЗАВАНТАЖЕННЯ...</div></div></div>
   <div class="section-title">🎯 Моя ціль</div>
-<div class="quest-card bonus-type" onclick="doGoalQuest('a')">
+<div class="quest-card bonus-type" onclick="doGoalQuest('p')">
   <div class="quest-icon" id="goal-icon-p">🎯</div>
   <div class="quest-info">
     <div class="quest-name" id="goal-p">Моя ціль</div>
@@ -474,7 +474,7 @@
   <div class="rewards-grid">
     <div class="reward-card" id="pr0" onclick="claimReward('p',0)"><div class="reward-level">РІВЕНЬ 3</div><div class="reward-icon">🎣</div><div class="reward-name">День рибалки</div></div>
     <div class="reward-card" id="pr1" onclick="claimReward('p',1)"><div class="reward-level">РІВЕНЬ 5</div><div class="reward-icon">🍺</div><div class="reward-name">Вечір для себе</div></div>
-    <div class="reward-card" id="pr2" onclick="claimReward('p',0)"><div class="reward-level">РІВЕНЬ 8</div><div class="reward-icon">🎯</div><div class="reward-name">Нова спальня</div></div>
+    <div class="reward-card" id="pr2" onclick="claimReward('p',2)"><div class="reward-level">РІВЕНЬ 8</div><div class="reward-icon">🎯</div><div class="reward-name">Нова спальня</div></div>
     <div class="reward-card" id="pr3" onclick="claimReward('p',3)"><div class="reward-level">РІВЕНЬ 10</div><div class="reward-icon">🌊</div><div class="reward-name">Рибальська поїздка</div></div>
   </div>
   <div class="pb"></div>
@@ -651,6 +651,15 @@ function renderChar(c) {
     el.classList.remove('claimed');
   }
 });
+  const goal = goalsData[c] || {};
+const goalEl = document.getElementById(`goal-${c}`);
+const goalXpEl = document.getElementById(`goal-xp-${c}`);
+const goalIconEl = document.getElementById(`goal-icon-${c}`);
+
+if (goalEl) goalEl.textContent = goal.goal || 'Моя ціль';
+if (goalXpEl) goalXpEl.textContent = `ЦІЛЬ · +${goal.xp || 50} XP`;
+if (goalIconEl) goalIconEl.textContent = goal.icon || '🎯';
+}
   function claimReward(c, rewardIndex) {
   const lvl = getLevel(state[c].xp);
   const requiredLevel = REWARD_LEVELS[rewardIndex];
