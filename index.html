@@ -182,6 +182,20 @@
   .xp-burst { position: fixed; font-size: 26px; font-weight: 900; pointer-events: none; z-index: 999; animation: burst 1s forwards; text-shadow: 0 0 20px currentColor; }
   @keyframes burst { 0%{opacity:1;transform:translateY(0) scale(1)} 100%{opacity:0;transform:translateY(-80px) scale(1.5)} }
   .pb { padding-bottom: 40px; }
+  .reward-card.claimed {
+  opacity: 0.65;
+  position: relative;
+}
+
+.reward-card.claimed::after {
+  content: '✓';
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  font-size: 18px;
+  font-weight: 900;
+  color: #22c55e;
+}
 </style>
 </head>
 <body>
@@ -521,7 +535,7 @@
 <div class="toast" id="toast"></div>
  
 <script>
-const SCRIPT_URL ='https://script.google.com/macros/s/AKfycbxPhfR6sN1QKmFE_E5aflx2ZzhOwy-KBwPw_44YGcUkoObYYCxb-ogL6G6pe2Dsp9FK/exec';
+const SCRIPT_URL ='https://script.google.com/macros/s/AKfycbwXJweig_HBozVWSt0Xp7T9HzfmcoVQWKAmoGaYds3r_SmGROIhT78wBqXCx24NzcZ-/exec';
  
 const POLL_INTERVAL = 5 * 60 * 1000;
 const CHARS = ['a','s','m','p'];
@@ -540,6 +554,7 @@ let state = defaultState();
 let extraQuestsData = {};
 let shopData = [];
 let goalsData = {};
+let rewardsData = {};
 let shopChar = null;
  
 async function apiGet() {
@@ -569,6 +584,7 @@ async function syncFromSheets(silent = false) {
     extraQuestsData = data.extraQuests || {};
     shopData = data.shop || [];
     goalsData = data.goals || {};
+    rewardsData = data.rewards || {};
     renderLog(data.log || []);
     renderAll();
     if (shopChar) renderShopItems();
@@ -620,21 +636,64 @@ function renderChar(c) {
   }
 }
   REWARD_LEVELS.forEach((rl,i) => {
-  const el=document.getElementById(`${c}r${i}`);
-  if (el) {
-    lvl.level>=rl ? el.classList.add('unlocked') : el.classList.remove('unlocked');
+  const el = document.getElementById(`${c}r${i}`);
+  if (!el) return;
+
+  if (lvl.level >= rl) {
+    el.classList.add('unlocked');
+  } else {
+    el.classList.remove('unlocked');
+  }
+
+  if (rewardsData[c] && rewardsData[c][i]) {
+    el.classList.add('claimed');
+  } else {
+    el.classList.remove('claimed');
   }
 });
+  function claimReward(c, rewardIndex) {
+  const lvl = getLevel(state[c].xp);
+  const requiredLevel = REWARD_LEVELS[rewardIndex];
 
-const goal = goalsData[c] || {};
-const goalEl = document.getElementById(`goal-${c}`);
-const goalXpEl = document.getElementById(`goal-xp-${c}`);
-const goalIconEl = document.getElementById(`goal-icon-${c}`);
-
-if (goalEl) goalEl.textContent = goal.goal || 'Моя ціль';
-if (goalXpEl) goalXpEl.textContent = `ЦІЛЬ · +${goal.xp || 50} XP`;
-if (goalIconEl) goalIconEl.textContent = goal.icon || '🎯';
+  if (lvl.level < requiredLevel) {
+    showToast('🔒 Ця нагорода ще не відкрита');
+    return;
   }
+
+  if (rewardsData[c] && rewardsData[c][rewardIndex]) {
+    showToast('✅ Цю нагороду вже отримано');
+    return;
+  }
+
+  openPinModal(c, () => completeClaimReward(c, rewardIndex));
+}
+
+async function completeClaimReward(c, rewardIndex) {
+  const card = document.getElementById(`${c}r${rewardIndex}`);
+  const rewardNameEl = card ? card.querySelector('.reward-name') : null;
+  const rewardName = rewardNameEl ? rewardNameEl.textContent : 'Нагорода';
+
+  if (!rewardsData[c]) rewardsData[c] = [false,false,false,false];
+  rewardsData[c][rewardIndex] = true;
+
+  renderChar(c);
+  showToast(`🏆 ${rewardName} отримано!`);
+  setSyncState('syncing');
+
+  try {
+    await apiPost({
+      action:'claimReward',
+      char:c,
+      rewardIndex:rewardIndex,
+      rewardName:rewardName
+    });
+
+    await syncFromSheets(true);
+    setSyncState('ok');
+  } catch(e) {
+    setSyncState('error');
+  }
+}
   function renderFamily() {
   const sorted = CHARS.map(c=>({c,xp:state[c].xp,level:getLevel(state[c].xp).level})).sort((a,b)=>b.xp-a.xp);
   const medals = ['🥇','🥈','🥉','🏅'];
