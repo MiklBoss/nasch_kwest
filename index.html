@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>⚔️ Сімейний Квест XP</title>
-<link href="https://script.google.com/macros/s/AKfycby2scFP6Ep25YfV6Dwbf3RN_IqiYskUHG9gFfHGTZ-Klkg8fEmovSY63w6AbFw74BKk/exec">
+<link href="https://script.google.com/macros/s/AKfycbxogFhDeyBhJCRTPKAOQPnS2JXZW2xOkfqWVknksCK1evUN5eS9MC8FMfZPb-rsoIyx/exec">
 <style>
   :root {
     --angelina-color: #a855f7; --angelina-bg: #1a0a2e; --angelina-accent: #e879f9;
@@ -103,6 +103,7 @@
   .title-option.locked { opacity: 0.35; cursor: not-allowed; }
   .title-option-name { font-size: 12px; font-weight: 900; line-height: 1.25; }
   .title-option-level { font-size: 10px; font-weight: 800; letter-spacing: 1px; color: rgba(255,255,255,0.45); margin-top: 4px; }
+  .title-options .extra-loading { grid-column: 1 / -1; }
   .extra-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.2); border-radius: 14px; padding: 13px; color: rgba(255,255,255,0.6); font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; margin-bottom: 9px; }
   .extra-btn:active { transform: scale(0.97); }
   .extra-btn .arrow { transition: transform 0.3s; font-style: normal; display: inline-block; }
@@ -197,7 +198,7 @@
   position: relative;
 }
 
-.reward-card.claimed::after {
+  .reward-card.claimed::after {
   content: '✓';
   position: absolute;
   top: 8px;
@@ -205,6 +206,9 @@
   font-size: 18px;
   font-weight: 900;
   color: #22c55e;
+}
+@media (max-width: 360px) {
+  .title-options { grid-template-columns: 1fr; }
 }
 </style>
 </head>
@@ -452,6 +456,7 @@
       <div class="fire">🔥</div><div class="streak-text">Серія днів:</div>
       <div class="streak-num" id="p-streak">0</div>
     </div>
+  </div>
   <div class="section-title">📋 Щоденні квести</div>
   <div class="quest-card" id="pq0" onclick="toggleQuest('p',0,10,'🎯',this)">
     <div class="quest-icon">🎯</div>
@@ -479,7 +484,6 @@
   </div>
   <div class="quest-check">＋</div>
 </div>
-  </div>
   <div class="section-title">🏆 Нагороди</div>
   <div class="rewards-grid">
     <div class="reward-card" id="pr0" onclick="claimReward('p',0)"><div class="reward-level">РІВЕНЬ 3</div><div class="reward-icon">🎣</div><div class="reward-name">День рибалки</div></div>
@@ -673,7 +677,7 @@ function renderCosmetics(c, level) {
   if (!container) return;
   const titles = (cosmeticsData[c] && cosmeticsData[c].title) || [];
   if (titles.length === 0) {
-    container.innerHTML = '<div class="extra-loading">ТИТУЛИ ЗʼЯВЛЯТЬСЯ ПІСЛЯ ОНОВЛЕННЯ ТАБЛИЦІ</div>';
+    container.innerHTML = '<div class="extra-loading">ТИТУЛИ ЧЕКАЮТЬ ОНОВЛЕННЯ APPS SCRIPT</div>';
     return;
   }
   const selectedId = getSelectedTitleId(c);
