@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>⚔️ Сімейний Квест XP</title>
-<link href="https://script.google.com/macros/s/AKfycbz_GaPjROcHR2EhGy7qE0m2rLCrB2Pa2RNBDI-48xyBn4L5sftJ5y6sHEAqYbisADhN/exec">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
     --angelina-color: #a855f7; --angelina-bg: #1a0a2e; --angelina-accent: #e879f9;
@@ -95,6 +95,14 @@
   .streak-display .fire { font-size: 20px; }
   .streak-display .streak-text { font-size: 13px; font-weight: 700; }
   .streak-display .streak-num { font-size: 20px; font-weight: 900; color: #f97316; }
+  .cosmetics-panel { background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.07); border-radius: 14px; padding: 10px; margin-bottom: 12px; }
+  .title-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .title-option { border: 1px solid rgba(255,255,255,0.08); border-radius: 10px; background: rgba(255,255,255,0.04); color: #fff; font-family: 'Nunito', sans-serif; padding: 10px; text-align: left; cursor: pointer; transition: all 0.2s; min-height: 58px; }
+  .title-option:active { transform: scale(0.97); }
+  .title-option.selected { border-color: var(--gold); background: rgba(251,191,36,0.1); }
+  .title-option.locked { opacity: 0.35; cursor: not-allowed; }
+  .title-option-name { font-size: 12px; font-weight: 900; line-height: 1.25; }
+  .title-option-level { font-size: 10px; font-weight: 800; letter-spacing: 1px; color: rgba(255,255,255,0.45); margin-top: 4px; }
   .extra-btn { display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%; background: rgba(255,255,255,0.04); border: 1px dashed rgba(255,255,255,0.2); border-radius: 14px; padding: 13px; color: rgba(255,255,255,0.6); font-family: 'Nunito', sans-serif; font-size: 14px; font-weight: 800; cursor: pointer; transition: all 0.2s; letter-spacing: 0.5px; margin-bottom: 9px; }
   .extra-btn:active { transform: scale(0.97); }
   .extra-btn .arrow { transition: transform 0.3s; font-style: normal; display: inline-block; }
@@ -543,6 +551,13 @@ const POLL_INTERVAL = 5 * 60 * 1000;
 const CHARS = ['a','s','m','p'];
 const CHAR_NAMES  = { a:'Ангеліна', s:'Світлана', m:'Мама', p:'Тато' };
 const CHAR_ICONS  = { a:'🧙‍♀️', s:'🎓', m:'🌿', p:'🛡️' };
+const CHAR_SCREENS = { a:'angelina', s:'svitlana', m:'mama', p:'papa' };
+const DEFAULT_TITLES = {
+  a:'✨ Чарівниця Звірів',
+  s:'🧱 Будівниця Світів',
+  m:'🌿 Берегиня Лісу',
+  p:'🛡️ Захисник Фортеці'
+};
 const BOSSES = ['🐉 Дракон Лінощів','🕷️ Павук Безладдя','👹 Монстр Відкладань','🧟 Зомбі Нудьги','🦂 Скорпіон Забудькуватості'];
 const BOSS_GOAL = 200;
 const REWARD_LEVELS = [3,5,8,10];
@@ -558,6 +573,8 @@ let extraDoneData = {};
 let shopData = [];
 let goalsData = {};
 let rewardsData = {};
+let cosmeticsData = {};
+let profilesData = {};
 let shopChar = null;
  
 async function apiGet() {
@@ -589,6 +606,8 @@ async function syncFromSheets(silent = false) {
     shopData = data.shop || [];
     goalsData = data.goals || {};
     rewardsData = data.rewards || {};
+    cosmeticsData = data.cosmetics || {};
+    profilesData = data.profiles || {};
     renderLog(data.log || []);
     renderAll();
     if (shopChar) renderShopItems();
@@ -617,6 +636,58 @@ function getLevel(xp) {
     total += needed; lvl++;
   }
 }
+
+function ensureCosmeticsPanels() {
+  CHARS.forEach(c => {
+    const screen = document.getElementById(`screen-${CHAR_SCREENS[c]}`);
+    if (!screen || document.getElementById(`cosmetics-${c}`)) return;
+    const heroCard = screen.querySelector('.hero-card');
+    if (!heroCard) return;
+    const panel = document.createElement('div');
+    panel.className = 'cosmetics-panel';
+    panel.id = `cosmetics-${c}`;
+    panel.innerHTML = `
+      <div class="section-title" style="margin-top:0;">🎖️ Титули героя</div>
+      <div class="title-options" id="title-options-${c}"></div>
+    `;
+    heroCard.insertAdjacentElement('afterend', panel);
+  });
+}
+
+function getSelectedTitleId(c) {
+  return profilesData[c] && profilesData[c].title ? profilesData[c].title : '';
+}
+
+function getSelectedTitleText(c) {
+  const titleId = getSelectedTitleId(c);
+  const titles = (cosmeticsData[c] && cosmeticsData[c].title) || [];
+  const found = titles.find(t => t.id === titleId);
+  return found ? `${found.icon} ${found.name}` : DEFAULT_TITLES[c];
+}
+
+function renderCosmetics(c, level) {
+  const titleEl = document.querySelector(`#screen-${CHAR_SCREENS[c]} .hero-info .class`);
+  if (titleEl) titleEl.textContent = getSelectedTitleText(c);
+
+  const container = document.getElementById(`title-options-${c}`);
+  if (!container) return;
+  const titles = (cosmeticsData[c] && cosmeticsData[c].title) || [];
+  if (titles.length === 0) {
+    container.innerHTML = '<div class="extra-loading">ТИТУЛИ ЗʼЯВЛЯТЬСЯ ПІСЛЯ ОНОВЛЕННЯ ТАБЛИЦІ</div>';
+    return;
+  }
+  const selectedId = getSelectedTitleId(c);
+  container.innerHTML = titles.map(t => {
+    const locked = level < t.requiredLevel;
+    const selected = selectedId === t.id;
+    return `
+      <button class="title-option ${locked ? 'locked' : ''} ${selected ? 'selected' : ''}" onclick="selectTitle('${c}','${t.id}')" ${locked ? 'disabled' : ''}>
+        <div class="title-option-name">${t.icon} ${t.name}</div>
+        <div class="title-option-level">${locked ? 'РІВЕНЬ ' + t.requiredLevel : selected ? 'ОБРАНО' : 'ВІДКРИТО'}</div>
+      </button>
+    `;
+  }).join('');
+}
  
 function renderChar(c) {
   const d = state[c], lvl = getLevel(d.xp);
@@ -625,6 +696,7 @@ function renderChar(c) {
   document.getElementById(`${c}-next`).textContent   = lvl.needed - lvl.current;
   document.getElementById(`${c}-streak`).textContent = d.streak;
   document.getElementById(`${c}-bar`).style.width = Math.min(100,Math.round(lvl.current/lvl.needed*100))+'%';
+  renderCosmetics(c, lvl.level);
   for (let i=0;i<4;i++) {
   const card = document.getElementById(`${c}q${i}`);
   const check = document.getElementById(`${c}q${i}-check`);
@@ -1038,6 +1110,41 @@ async function doExtraQuest(c, idx) {
     setSyncState('ok');
   } catch(e) { setSyncState('error'); }
 }
+
+async function selectTitle(c, titleId) {
+  const d = state[c];
+  const lvl = getLevel(d.xp);
+  const titles = (cosmeticsData[c] && cosmeticsData[c].title) || [];
+  const title = titles.find(t => t.id === titleId);
+  if (!title) return;
+  if (lvl.level < title.requiredLevel) {
+    showToast(`🔒 Відкриється на рівні ${title.requiredLevel}`);
+    return;
+  }
+  if (getSelectedTitleId(c) === titleId) {
+    showToast('✅ Цей титул вже обрано');
+    return;
+  }
+
+  if (!profilesData[c]) profilesData[c] = {};
+  profilesData[c].title = titleId;
+  renderChar(c);
+  showToast(`${title.icon} Титул обрано!`);
+  setSyncState('syncing');
+
+  try {
+    const res = await apiPost({ action:'updateProfile', char:c, title:titleId });
+    if (res && res.ok === false) {
+      showToast(res.locked ? '🔒 Титул ще не відкрито' : '⚠️ Не вдалося зберегти титул');
+      await syncFromSheets(true);
+      return;
+    }
+    await syncFromSheets(true);
+    setSyncState('ok');
+  } catch(e) {
+    setSyncState('error');
+  }
+}
  
 function showScreen(name) {
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
@@ -1063,6 +1170,7 @@ function showBurst(text,x,y,color) {
 }
  
 function initApp() {
+  ensureCosmeticsPanels();
   renderAll();
   syncFromSheets(true);
   setInterval(()=>syncFromSheets(true), POLL_INTERVAL);
