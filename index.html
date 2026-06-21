@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 <title>⚔️ Сімейний Квест XP</title>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@700&family=Nunito:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link href="https://script.google.com/macros/s/AKfycbz_GaPjROcHR2EhGy7qE0m2rLCrB2Pa2RNBDI-48xyBn4L5sftJ5y6sHEAqYbisADhN/exec">
 <style>
   :root {
     --angelina-color: #a855f7; --angelina-bg: #1a0a2e; --angelina-accent: #e879f9;
@@ -108,6 +108,8 @@
   .extra-panel-inner { padding: 8px; }
   .extra-quest-item { display: flex; align-items: center; gap: 10px; padding: 11px 12px; border-radius: 10px; cursor: pointer; transition: background 0.15s; -webkit-tap-highlight-color: transparent; }
   .extra-quest-item:active { background: rgba(255,255,255,0.08); }
+  .extra-quest-item.done { opacity: 0.45; cursor: not-allowed; }
+  .extra-quest-item.done:active { background: transparent; }
   .extra-quest-icon { font-size: 20px; width: 32px; text-align: center; flex-shrink: 0; }
   .extra-quest-name { flex: 1; font-size: 13px; font-weight: 700; }
   .extra-quest-xp { font-size: 13px; font-weight: 900; padding: 4px 10px; border-radius: 8px; background: rgba(255,255,255,0.06); flex-shrink: 0; }
@@ -552,6 +554,7 @@ function defaultState() {
 }
 let state = defaultState();
 let extraQuestsData = {};
+let extraDoneData = {};
 let shopData = [];
 let goalsData = {};
 let rewardsData = {};
@@ -582,6 +585,7 @@ async function syncFromSheets(silent = false) {
     });
     state.teamBonus = !!data.teamBonus;
     extraQuestsData = data.extraQuests || {};
+    extraDoneData = data.extraDone || {};
     shopData = data.shop || [];
     goalsData = data.goals || {};
     rewardsData = data.rewards || {};
@@ -921,12 +925,35 @@ function renderExtraList(c) {
     return;
   }
   container.innerHTML = quests.map((q,i)=>`
-    <div class="extra-quest-item" onclick="doExtraQuest('${c}',${i})">
+    <div class="extra-quest-item ${isExtraDone(c, i, q) ? 'done' : ''}" onclick="doExtraQuest('${c}',${i})">
       <div class="extra-quest-icon">${q.icon}</div>
       <div class="extra-quest-name">${q.name}</div>
-      <div class="extra-quest-xp">+${q.xp} XP</div>
+      <div class="extra-quest-xp">${isExtraDone(c, i, q) ? '✅' : '+' + q.xp + ' XP'}</div>
     </div>`).join('');
 }
+
+function getTodayKey() {
+  const d = new Date();
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+function getExtraQuestId(c, idx, q) {
+  return `${c}:${idx}:${String(q.name || '').trim().toLowerCase()}`;
+}
+
+function isExtraDone(c, idx, q) {
+  const done = extraDoneData[c] || {};
+  return done[getExtraQuestId(c, idx, q)] === getTodayKey();
+}
+
+function markExtraDone(c, idx, q) {
+  if (!extraDoneData[c]) extraDoneData[c] = {};
+  extraDoneData[c][getExtraQuestId(c, idx, q)] = getTodayKey();
+}
+
  async function doGoalQuest(c) {
   const goal = goalsData[c] || {};
   const xp = Number(goal.xp) || 50;
@@ -958,7 +985,8 @@ function renderExtraList(c) {
       streak:d.streak,
       lastDay:d.lastDay,
       questName:name,
-      questXp:xp
+      questXp:xp,
+      questType:'goal'
     });
 
     setSyncState('ok');
@@ -970,8 +998,13 @@ function renderExtraList(c) {
 async function doExtraQuest(c, idx) {
   const q = extraQuestsData[c][idx];
   if (!q) return;
+  if (isExtraDone(c, idx, q)) {
+    showToast('✅ Цей extra-квест вже зараховано сьогодні');
+    return;
+  }
   const d = state[c];
   d.xp += q.xp;
+  markExtraDone(c, idx, q);
   const today = new Date().toDateString();
   if (d.lastDay !== today) {
     d.streak = d.lastDay===new Date(Date.now()-86400000).toDateString() ? d.streak+1 : 1;
@@ -985,7 +1018,23 @@ async function doExtraQuest(c, idx) {
   renderChar(c); renderFamily();
   setSyncState('syncing');
   try {
-    await apiPost({action:'extraQuest', char:c, xp:d.xp, streak:d.streak, lastDay:d.lastDay, questName:q.name, questXp:q.xp});
+    const res = await apiPost({
+      action:'extraQuest',
+      char:c,
+      xp:d.xp,
+      streak:d.streak,
+      lastDay:d.lastDay,
+      questName:q.name,
+      questXp:q.xp,
+      questId:getExtraQuestId(c, idx, q),
+      questType:'extra',
+      doneDate:getTodayKey()
+    });
+    if (res && res.duplicate) {
+      showToast('✅ Цей extra-квест вже зараховано сьогодні');
+      await syncFromSheets(true);
+      return;
+    }
     setSyncState('ok');
   } catch(e) { setSyncState('error'); }
 }
