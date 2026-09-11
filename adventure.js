@@ -24,18 +24,8 @@ function ranges(today, selected) {
   const earlierEnd = shift(previous,-1);
   return { start, previous, previousEnd, completedStart: previous, earlierStart: earlierEnd.slice(0,7) + '-01', earlierEnd };
 }
-function baseArt(d) {
-  const color = { base:'#377d92', mint:'#52a78b', rose:'#cf7180' }[d.coat] || '#377d92';
-  const hats = { scout:'<path d="M65 79 95 35l30 44Z" fill="#d4ad61"/><path d="M57 79h77" stroke="#856447" stroke-width="8"/>', mage:'<path d="m58 79 39-63 30 63Z" fill="#526aa3"/><path d="M52 80h86" stroke="#354977" stroke-width="8"/>', builder:'<path d="M62 78a33 33 0 0 1 66 0Z" fill="#e4ad48"/><path d="M61 81h70" stroke="#ac752c" stroke-width="7"/>', keeper:'<path d="M63 79Q60 27 96 38q39-3 32 42" fill="#749992"/><path d="M94 38v39" stroke="#d9eee7" stroke-width="6"/>' };
-  return `<svg class="hero-art" viewBox="0 0 190 230" role="img" aria-label="${esc(heroes[d.hero])}, обраний образ"><ellipse cx="95" cy="213" rx="61" ry="8" fill="#cadfd3"/><path d="m76 169-4 37m40-37 5 37" stroke="#384c51" stroke-width="16" stroke-linecap="round"/><path d="M71 124 49 161m71-37 23 35" stroke="#e6b795" stroke-width="14" stroke-linecap="round"/><path d="M70 115h51l12 67H58Z" fill="${color}"/><path d="M95 118v62" stroke="#ffffff70" stroke-width="3"/><circle cx="95" cy="87" r="32" fill="#ecc19e"/><path d="M65 90q-13-48 31-45 42 0 29 49l-10-24q-21 8-42 1Z" fill="#4c3c3c"/><circle cx="83" cy="88" r="3" fill="#253d34"/><circle cx="108" cy="88" r="3" fill="#253d34"/><path d="M87 103q9 7 17 0" fill="none" stroke="#9b5e50" stroke-width="3" stroke-linecap="round"/>${hats[d.hero] || hats.scout}${d.tool==='staff'?'<path d="M145 196V102" stroke="#877052" stroke-width="6"/><path class="spark" d="m145 82 12 17-12 17-12-17Z" fill="#52c5bb"/>':d.tool==='lantern'?'<path d="M139 154v-15h16v15" fill="none" stroke="#596357" stroke-width="4"/><rect x="131" y="153" width="32" height="36" rx="5" fill="#dba54d"/><rect class="spark" x="140" y="159" width="14" height="23" fill="#fff1b2"/>':''}${d.badge==='star'?'<path d="m94 128 4 8 9 1-7 6 2 9-8-5-8 5 2-9-7-6 9-1Z" fill="#ffda6e"/>':d.badge==='crown'?'<path d="m74 56-3-19 13 9 11-15 12 15 12-9-3 19Z" fill="#f4c95b"/>':''}</svg>`;
-}
 function art(d) {
-  const svg = baseArt(d);
-  if (char !== 'p') return svg;
-  return svg
-    .replace('M70 115h51l12 67H58Z', 'M66 115h59l3 61H62Z')
-    .replace('M65 90q-13-48 31-45 42 0 29 49l-10-24q-21 8-42 1Z', 'M65 84q-7-39 31-39 37 0 30 39l-9-17q-22 5-44 0Z')
-    .replace('<circle cx="83"', '<path d="M67 94q5 30 28 30t28-30l-13 11H80Z" fill="#59453e"/><circle cx="83"');
+  return drawQuestHero(d, esc(heroes[d.hero]), char === 'p');
 }
 function scene(count) {
   return `<svg class="scene" viewBox="0 0 720 250" role="img" aria-label="Сімейний табір, ${count} внесків цього тижня"><path fill="#c5e2d6" d="M0 160Q150 65 300 145T720 100V250H0Z"/><path fill="#91b6a0" d="M0 201Q180 118 370 190T720 155V250H0Z"/><path d="M0 239Q350 179 720 231" stroke="#eee9c8" stroke-width="22" fill="none"/>${count>=4?'<path d="m130 207 80-121 82 121Z" fill="#dfae62"/><path d="m210 86 17 121h65Z" fill="#bd8544"/><path d="m178 207 32-66 30 66Z" fill="#4c6861"/>':'<path d="m130 207 80-121 82 121Z" fill="none" stroke="#718f80" stroke-width="3" stroke-dasharray="8 7"/>'}${count>=8?'<path d="M363 200v-89m-4 0h38" stroke="#657769" stroke-width="7"/><rect x="382" y="108" width="27" height="36" rx="5" fill="#e9ba52"/><rect x="390" y="114" width="11" height="22" fill="#fff4c0"/>':''}${count>=12?'<path d="M472 190h105m-89 0v28m73-28v28" stroke="#6d8175" stroke-width="9"/><path d="M488 175h74" stroke="#bd865a" stroke-width="18"/>':''}${count>=16?'<path d="M80 70q260 50 570-10" stroke="#658574" stroke-width="3"/><path d="m150 80 16 27 13-22m100 8 16 27 13-25m105-3 16 27 13-29m106-10 16 26 13-29" fill="#cc7880"/>':''}<circle cx="606" cy="47" r="22" fill="#f3d980"/></svg>`;
@@ -49,7 +39,8 @@ function nextText(d) {
 function intro(d) {
   const floor=d.level*(d.level-1)*50, width=Math.max(0,Math.min(100,(d.xp-floor)/(d.level*100)*100));
   const title=(((data.cosmetics[char]||{}).title||[]).find(t=>t.id===d.title)||{}).name;
-  return `<section class="intro"><div><p class="eyebrow">${esc(heroes[d.hero])}${title?' · '+esc(title):''}</p><h1>${esc(names[char])}</h1><div class="stats"><div><strong>${d.level}</strong><span>рівень</span></div><div><strong>${d.xp}</strong><span>досвід</span></div><div><strong>${d.coins}</strong><span>монети</span></div></div><div class="track"><span style="width:${width}%"></span></div><p class="muted next">${nextText(d)}</p></div>${art(d)}</section>`;
+  const greetings = {scout:'Пригоди чекають!',mage:'Час творити дива!',builder:'Маю чудову ідею!',keeper:'Разом усе під силу!'};
+  return `<section class="intro role-${d.hero}"><div class="hero-summary"><p class="eyebrow">${esc(heroes[d.hero])}${title?' · '+esc(title):''}</p><h1>${esc(names[char])}</h1><p class="hero-greeting">${greetings[d.hero] || greetings.scout}</p><div class="stats"><div><strong>${d.level}</strong><span>рівень</span></div><div><strong>${d.xp}</strong><span>досвід</span></div><div><strong>${d.coins}</strong><span>монети</span></div></div><div class="track"><span style="width:${width}%"></span></div><p class="muted next">${nextText(d)}</p></div><button class="hero-stage" type="button" data-greet title="Привітатися з героєм" aria-label="Привітатися з героєм">${drawHeroBackdrop(d.hero)}${art(d)}<span class="hero-reaction" aria-hidden="true">Дай п’ять!</span></button></section>`;
 }
 function questList(list,d) {
   return `<div class="quest-list">${list.map(q=>`<article class="quest ${d.done.includes(q.id)?'done':''}"><div class="body"><h3>${esc(q.name)}</h3><small>${d.done.includes(q.id)?'Виконано сьогодні':`+${q.xp} XP · +${q.xp} монет`}</small></div><button data-action="quest" data-key="${esc(q.id)}" title="${d.done.includes(q.id)?'Виконано':'Зарахувати виконання'}" aria-label="${d.done.includes(q.id)?'Виконано':'Виконати'}: ${esc(q.name)}" ${d.done.includes(q.id)||busy||!fresh?'disabled':''}>${d.done.includes(q.id)?'✓':'＋'}</button></article>`).join('')}</div>`;
@@ -85,6 +76,7 @@ function render() {
     html+=requests.slice(-20).reverse().map(e=>{const done=data.events.some(x=>x.kind==='fulfilled'&&x.key===e.id);const people=e.details.participants||[e.char];return `<div class="event"><span>${esc(people.map(c=>names[c]).join(', '))}: ${esc(e.details.name)}${e.details.charges?`<br><small>${e.details.planned?'Заплановано · без списання':people.map(c=>`${esc(names[c])}: ${e.details.charges[c]} монет`).join(' · ')}</small>`:''}<br><small>${done?'Видано':'Очікує на дорослого'}</small></span>${!done&&['m','p'].includes(char)?`<button data-action="fulfill" data-key="${esc(e.id)}">Видано</button>`:''}</div>`;}).join('')||'<p class="empty">Запитів поки немає.</p>';
   }
   $('main').innerHTML=html;
+  $('main').dataset.view=view;
   if(view==='today') {
     $('main').querySelectorAll('h2').forEach(h=>{if(h.textContent==='Крок до моєї цілі')h.textContent='Моя велика ціль';});
     for(const q of d.quests.filter(q=>q.group==='goal')) {
@@ -97,6 +89,52 @@ function render() {
     b.disabled=false;
   });
   if(busy||!fresh)$('main').querySelectorAll('[data-action]').forEach(b=>b.disabled=true);
+  decorateGameView();
+}
+
+const expandedLists = new Map();
+function decorateGameView() {
+  // Keep the original controls and handlers; disclosures only change visibility.
+  $('main').querySelectorAll('h2').forEach(heading => {
+    let next=heading.nextElementSibling;
+    if(next && next.matches('.event,.family-row')){
+      const group=document.createElement('div');group.className='event-list';heading.after(group);
+      while(next && next.matches('.event,.family-row')){const following=next.nextElementSibling;group.append(next);next=following;}
+    }
+  });
+  $('main').querySelectorAll('.quest-list').forEach(list=>{
+    const key=list.querySelector('[data-key]')?.dataset.key || '';
+    const kind=key.startsWith('goal:')?'goal':key.startsWith('daily:')?'routine':'adventure';
+    list.dataset.kind=kind;
+    list.querySelectorAll('.quest').forEach((row,i)=>{
+      const emblem=document.createElement('span');emblem.className='quest-emblem';emblem.setAttribute('aria-hidden','true');
+      emblem.textContent=(kind==='goal'?['⚑']:kind==='routine'?['⌂','✎','★']:['✦','♫','✿'])[i% (kind==='goal'?1:3)];
+      row.prepend(emblem);
+    });
+  });
+  $('main').querySelectorAll('.quest-list,.options,.shop-grid,.event-list').forEach((list,index)=>{
+    const rows=[...list.children];if(rows.length<=3)return;
+    const key=`${char}:${view}:${index}`, id=`fold-${index}`;
+    list.id=id;
+    const toggle=document.createElement('button');toggle.className='list-toggle';toggle.type='button';toggle.setAttribute('aria-controls',id);
+    const preview=new Set(rows.slice(0,3));
+    const selected=rows.find(row=>row.getAttribute('aria-pressed')==='true');
+    if(selected && !preview.has(selected)){preview.delete(rows[2]);preview.add(selected);}
+    const update=()=>{
+      const open=expandedLists.get(key)===true;
+      rows.forEach(row=>row.hidden=!open&&!preview.has(row));
+      toggle.setAttribute('aria-expanded',String(open));
+      toggle.innerHTML=`<span>${open?'Згорнути':'Показати ще '+(rows.length-3)}</span><span class="fold-chevron" aria-hidden="true">⌄</span>`;
+    };
+    toggle.onclick=()=>{expandedLists.set(key,expandedLists.get(key)!==true);update();};
+    list.after(toggle);update();
+  });
+}
+
+function greetHero() {
+  const stage=$('main').querySelector('.hero-stage');if(!stage)return;
+  stage.classList.remove('cheering');void stage.offsetWidth;stage.classList.add('cheering');
+  setTimeout(()=>stage.classList.remove('cheering'),1700);
 }
 async function request(payload) {
   if(window.familyQuestDemo) return window.familyQuestDemo(payload);
@@ -132,6 +170,7 @@ function chooseParticipants(item,c) {
 }
 async function mutate(button){
   if(busy||!fresh)return;const c=char, action=button.dataset.action,key=button.dataset.key,field=button.dataset.field;
+  let celebrate=false;
   busy=true;render();
   try{
     if(!tokens[c]&&!await login(c))return;
@@ -158,10 +197,11 @@ async function mutate(button){
     if(!result.ok){sessionStorage.removeItem(storageKey);throw Error(result.error||'Не вдалося зберегти');}
     sessionStorage.removeItem(storageKey);
     await sync();toast(result.duplicate?'Уже збережено':action==='quest'?'Ще один крок у твоїй пригоді!':'Збережено');
+    celebrate=action==='quest'&&!result.duplicate;
   }catch(e){toast(e.name==='AbortError'?'Відповідь затрималась. Онови дані перед повторною спробою.':e.message);await sync();}
-  finally{busy=false;render();}
+  finally{busy=false;render();if(celebrate&&char===c)greetHero();}
 }
-$('main').addEventListener('click',e=>{const button=e.target.closest('button');if(!button||button.disabled)return;if(button.dataset.period){period=button.dataset.period;render();}else if(button.dataset.action)mutate(button);});
+$('main').addEventListener('click',e=>{const button=e.target.closest('button');if(!button||button.disabled)return;if(button.hasAttribute('data-greet'))greetHero();else if(button.dataset.period){period=button.dataset.period;render();}else if(button.dataset.action)mutate(button);});
 document.querySelector('nav').addEventListener('click',e=>{if(e.target.dataset.view){view=e.target.dataset.view;render();}});
 $('profile').value=char;$('profile').onchange=e=>{char=e.target.value;localStorage.setItem('fq-profile',char);render();};
 function renderTheme() {
