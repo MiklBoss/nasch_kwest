@@ -1,4 +1,4 @@
-const CACHE = 'familyquest-adventure-art-4';
+const CACHE = 'familyquest-adventure-fast-5';
 const SHELL = ['./', './index.html', './adventure.css', './game.css', './hero-art.js', './adventure.js', './config.js', './demo.js', './manifest.webmanifest', './icon.svg', './icon-192.png', './icon-512.png'];
 self.addEventListener('install', event => { event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(SHELL))); });
 self.addEventListener('activate', event => { event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key.startsWith('familyquest-') && key !== CACHE).map(key => caches.delete(key)))).then(() => self.clients.claim())); });

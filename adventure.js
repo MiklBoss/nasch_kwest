@@ -9,6 +9,9 @@ const heroes = {
 const gear = { coat: [['base','Морський',1],['mint','М’ятний',2],['rose','Кораловий',3]], tool: [['none','Без предмета',1],['staff','Посох',2],['lantern','Ліхтар',3]], badge: [['none','Без прикраси',1],['star','Зірка',2],['crown','Корона',3]] };
 const rewardNames = { a:['Кіно на вибір','Спа-вечір','Шопінг на 20€','Поїздка на вибір'], s:['Кіно на вибір','Нове LEGO','Шопінг на 20€','Поїздка на вибір'], m:['Spa-вечір','Вечеря в ресторані','Нова спальня','Поїздка разом'], p:['День рибалки','Вечір для себе','Нова спальня','Рибальська поїздка'] };
 let data, char = localStorage.getItem('fq-profile') || 'a', view = 'today', period = 'week', busy = false, fresh = false;
+let confirmedData, stateEpoch = 0, questSending = false, syncInFlight = null;
+let questQueue = [];
+try { questQueue = JSON.parse(sessionStorage.getItem('fq-quest-outbox') || '[]').map(q => ({...q, status:'uncertain'})); } catch {}
 if (!names[char]) char = 'a';
 const tokens = JSON.parse(sessionStorage.getItem('fq-tokens') || '{}');
 const $ = id => document.getElementById(id);
@@ -89,6 +92,11 @@ function render() {
     b.disabled=false;
   });
   if(busy||!fresh)$('main').querySelectorAll('[data-action]').forEach(b=>b.disabled=true);
+  if(questQueue.length)$('main').querySelectorAll('[data-action]:not([data-action="quest"])').forEach(b=>b.disabled=true);
+  for(const pending of questQueue.filter(q=>q.char===char)) {
+    const button=[...$('main').querySelectorAll('[data-action="quest"]')].find(b=>b.dataset.key===pending.key);
+    if(button){button.disabled=true;button.closest('.quest').querySelector('small').textContent=pending.status==='uncertain'?'Збереження не підтверджене':'Зберігається…';}
+  }
   decorateGameView();
 }
 
@@ -142,9 +150,86 @@ async function request(payload) {
   try { const response=await fetch(window.FAMILYQUEST_API,{...(payload?{method:'POST',headers:{'Content-Type':'text/plain'},body:JSON.stringify(payload)}:{}),signal:controller.signal,cache:'no-store'});if(!response.ok)throw Error('Не вдалося підключитися');return await response.json(); }
   finally {clearTimeout(timer);}
 }
+function saveQuestQueue() {
+  sessionStorage.setItem('fq-quest-outbox',JSON.stringify(questQueue));
+}
+function connectionStatus() {
+  if(!navigator.onLine)$('connection').textContent='Немає інтернету. Очікуємо підключення.';
+  else if(questQueue.some(q=>q.status==='uncertain'))$('connection').textContent='Не всі виконання підтверджені сервером.';
+  else if(questQueue.length)$('connection').textContent=`Зберігаємо виконання: ${questQueue.length}…`;
+  else if(fresh)$('connection').textContent=window.familyQuestDemo?'Демонстрація · сімейні дані не змінюються · PIN 1234':'Збережено в родині';
+  $('retry-save').hidden=!questQueue.some(q=>q.status==='uncertain');
+  $('retry-save').disabled=questSending||busy||!navigator.onLine;
+}
+function rebaseQuestView() {
+  if(!confirmedData)return;
+  data=structuredClone(confirmedData);
+  for(const entry of questQueue) {
+    const d=data.chars[entry.char],q=d?.quests.find(q=>q.id===entry.key);
+    if(!q||entry.day!==data.today||d.done.includes(entry.key))continue;
+    d.done.push(entry.key);d.xp+=q.xp;d.coins+=q.xp;
+    d.level=1;while(d.xp>=d.level*(d.level+1)*50)d.level++;
+    data.events.push({id:entry.id,day:entry.day,char:entry.char,kind:'quest',key:entry.key,xp:q.xp,coins:q.xp,details:{name:q.name},pending:true});
+  }
+  render();connectionStatus();
+}
+function acceptState(result) {
+  if(result.version!=='familyquest-adventure-3')throw Error('Потрібне оновлення гри на сервері.');
+  confirmedData=result;fresh=true;
+  const confirmed=new Set(result.events.map(e=>e.id));
+  questQueue=questQueue.filter(q=>!confirmed.has(q.id));
+  const expired=questQueue.filter(q=>q.day!==result.today);
+  if(expired.length){questQueue=questQueue.filter(q=>q.day===result.today);toast('Незбережені виконання минулого дня не перенесено на сьогодні.');}
+  saveQuestQueue();rebaseQuestView();
+}
 async function sync() {
-  try { const result=await request();if(result.version!=='familyquest-adventure-3')throw Error('Потрібне оновлення гри на сервері.');data=result;fresh=true;$('connection').textContent=window.familyQuestDemo?'Демонстрація · сімейні дані не змінюються · PIN 1234':'Збережено в родині';render(); }
-  catch(e){fresh=false;$('connection').textContent=navigator.onLine?e.message:'Немає інтернету. Підключись, щоб зарахувати справу.';render();}
+  if(questSending)return false;
+  if(syncInFlight)return syncInFlight;
+  const epoch=stateEpoch;
+  syncInFlight=(async()=>{
+    try {const result=await request();if(epoch!==stateEpoch)return false;acceptState(result);return true;}
+    catch(e){if(epoch!==stateEpoch)return false;fresh=false;$('connection').textContent=navigator.onLine?e.message:'Немає інтернету. Підключись, щоб зарахувати справу.';render();connectionStatus();return false;}
+    finally{syncInFlight=null;}
+  })();
+  return syncInFlight;
+}
+async function queueQuest(button) {
+  if(busy||!fresh)return;
+  const c=char,key=button.dataset.key,q=data.chars[c].quests.find(q=>q.id===key);
+  if(!q||data.chars[c].done.includes(key))return;
+  if(!tokens[c]||q.group==='goal') {
+    busy=true;render();
+    try {
+      if(!tokens[c]&&!await login(c))return;
+      if(q.group==='goal'&&!await confirmAction('Велику ціль досягнуто?','Нагороду за цю ціль можна отримати один раз.'))return;
+    }finally{busy=false;render();}
+  }
+  if(!fresh||data.chars[c].done.includes(key))return;
+  questQueue.push({id:crypto.randomUUID(),char:c,key,day:data.today,status:'queued'});
+  saveQuestQueue();rebaseQuestView();
+  if(char===c)greetHero();
+  toast(`+${q.xp} XP · зберігаємо`);
+  pumpQuests();
+}
+async function pumpQuests() {
+  if(questSending||!navigator.onLine||!questQueue.length||questQueue[0].status==='uncertain')return;
+  questSending=true;
+  try {
+    while(questQueue.length && questQueue[0].status!=='uncertain' && navigator.onLine) {
+      const entry=questQueue[0];entry.status='sending';saveQuestQueue();stateEpoch++;
+      const result=await request({action:'quest',char:entry.char,key:entry.key,day:entry.day,id:entry.id,token:tokens[entry.char]});
+      stateEpoch++;
+      if(result.auth){entry.status='uncertain';delete tokens[entry.char];saveQuestQueue();toast('Підтвердь PIN, щоб зберегти виконання.');break;}
+      if(!result.ok){questQueue=questQueue.filter(q=>q.id!==entry.id);saveQuestQueue();rebaseQuestView();toast(result.error||'Виконання не збережено. Очки повернено.');continue;}
+      if(result.state){questQueue=questQueue.filter(q=>q.id!==entry.id);acceptState(result.state);}
+      else {
+        // Compatibility with the earlier Apps Script deployment.
+        const latest=await request();acceptState(latest);
+        if(questQueue.some(q=>q.id===entry.id)){entry.status='uncertain';saveQuestQueue();break;}
+      }
+    }
+  }catch(e){if(questQueue.length)questQueue[0].status='uncertain';saveQuestQueue();toast('Сервер ще не підтвердив збереження. Можна безпечно повторити.');}
+  finally{questSending=false;rebaseQuestView();}
 }
 function toast(message){$('toast').textContent=message;$('toast').classList.add('visible');setTimeout(()=>$('toast').classList.remove('visible'),3500);}
 let loginResolve;
@@ -169,9 +254,9 @@ function chooseParticipants(item,c) {
   return new Promise(resolve=>$('outing').addEventListener('close',()=>resolve($('outing').returnValue==='yes'?selection():null),{once:true}));
 }
 async function mutate(button){
-  if(busy||!fresh)return;const c=char, action=button.dataset.action,key=button.dataset.key,field=button.dataset.field;
+  if(busy||!fresh||questQueue.length)return;const c=char, action=button.dataset.action,key=button.dataset.key,field=button.dataset.field;
   let celebrate=false;
-  busy=true;render();
+  busy=true;stateEpoch++;render();
   try{
     if(!tokens[c]&&!await login(c))return;
     let purchase = {};
@@ -196,12 +281,23 @@ async function mutate(button){
     if(result.consent){if(!await login(result.consent))return;purchase.consents[result.consent]=tokens[result.consent];result=await request(payload());}
     if(!result.ok){sessionStorage.removeItem(storageKey);throw Error(result.error||'Не вдалося зберегти');}
     sessionStorage.removeItem(storageKey);
-    await sync();toast(result.duplicate?'Уже збережено':action==='quest'?'Ще один крок у твоїй пригоді!':'Збережено');
+    stateEpoch++;
+    if(result.state)acceptState(result.state);else await sync();
+    toast(result.duplicate?'Уже збережено':action==='quest'?'Ще один крок у твоїй пригоді!':'Збережено');
     celebrate=action==='quest'&&!result.duplicate;
   }catch(e){toast(e.name==='AbortError'?'Відповідь затрималась. Онови дані перед повторною спробою.':e.message);await sync();}
   finally{busy=false;render();if(celebrate&&char===c)greetHero();}
 }
-$('main').addEventListener('click',e=>{const button=e.target.closest('button');if(!button||button.disabled)return;if(button.hasAttribute('data-greet'))greetHero();else if(button.dataset.period){period=button.dataset.period;render();}else if(button.dataset.action)mutate(button);});
+$('main').addEventListener('click',e=>{const button=e.target.closest('button');if(!button||button.disabled)return;if(button.hasAttribute('data-greet'))greetHero();else if(button.dataset.period){period=button.dataset.period;render();}else if(button.dataset.action==='quest')queueQuest(button);else if(button.dataset.action)mutate(button);});
+$('retry-save').onclick=async()=>{
+  if(busy||questSending)return;
+  busy=true;render();
+  try {
+    for(const c of new Set(questQueue.map(q=>q.char)))if(!tokens[c]&&!await login(c))return;
+    questQueue.forEach(q=>q.status='queued');saveQuestQueue();
+  }finally{busy=false;rebaseQuestView();}
+  pumpQuests();
+};
 document.querySelector('nav').addEventListener('click',e=>{if(e.target.dataset.view){view=e.target.dataset.view;render();}});
 $('profile').value=char;$('profile').onchange=e=>{char=e.target.value;localStorage.setItem('fq-profile',char);render();};
 function renderTheme() {

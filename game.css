@@ -1,4 +1,5 @@
 /* Adventure presentation. Game rules and API contracts live in adventure.js. */
+#retry-save{display:block;margin:8px auto;max-width:calc(100% - 32px)}
 :root {
   --game-bg: #eef2f8;
   --game-surface: #fff;
