@@ -8,7 +8,14 @@ function drawQuestHero(d, label, father) {
   const trim = {scout:'#ffcf62',mage:'#b9a0ff',builder:'#ff9866',keeper:'#bce977'}[role];
   const skin = '#f6c297';
   const eyes = {scout:'#29968e',mage:'#7961c3',builder:'#a66732',keeper:'#388ab2'}[role];
-  const hair = father ? '#644738' : {scout:'#815135',mage:'#463452',builder:'#794839',keeper:'#d58b46'}[role];
+  const identity=d.identity || (father?'p':'a');
+  const hair = {a:'#a55c30',s:'#403454',m:'#704337',p:'#644738'}[identity];
+  const hairShape = identity==='a'
+    ? `<path d="M128 85Q83 92 90 147l-17 40 30-7 23-39m94-55q43 8 40 59l18 36-31-8-21-33" fill="${hair}"/><path d="m94 140 22 5m122-6 20-6" stroke="#65dfc2" stroke-width="10"/>`
+    : identity==='s'
+    ? `<path d="M126 83Q83 115 102 182l31-19 9-37 65-1 12 39 25 10q22-66-23-90Z" fill="${hair}"/><path d="m109 156 19-9" stroke="#ffcc64" stroke-width="7"/>`
+    : identity==='m'
+    ? `<path d="M125 85Q99 109 112 160l19 24 12-37h62l16 30 24-22q12-49-26-72Z" fill="${hair}"/><circle cx="239" cy="98" r="24" fill="${hair}"/>` : '';
   const face = father
     ? `<path d="M128 140q2 42 49 45 48-6 49-45l-22 14-25 9-24-9Z" fill="${hair}"/><path d="m153 162 25 7 25-7q-23 27-50 0Z" fill="#fff4df" stroke-width="3"/>`
     : `<path d="M155 157q23 10 47-2-8 32-32 17Z" fill="#5d3542" stroke-width="3"/><path d="m162 159 33-1-6 9-24-1Z" fill="#fffdf1" stroke="none"/><path d="M172 173q8-7 16-3" stroke="#ff8da0" stroke-width="5"/><ellipse cx="132" cy="146" rx="10" ry="5" fill="#ef937f" stroke="none"/><ellipse cx="216" cy="145" rx="10" ry="5" fill="#ef937f" stroke="none"/>`;
@@ -45,7 +52,7 @@ function drawQuestHero(d, label, father) {
     : d.badge==='crown'
     ? `<path d="m148 60-6-28 20 12 16-25 17 25 18-12-5 28Z" fill="#ffce5a"/><circle cx="178" cy="46" r="5" fill="#fa8397" stroke-width="2"/>`
     : `<path d="m168 234 10-9 10 9-10 13Z" fill="${trim}" stroke-width="3"/>`;
-  return `<svg class="hero-art role-${role}" viewBox="0 0 360 390" role="img" aria-label="${label}, обраний образ">
+  return `<svg class="hero-art identity-${identity} role-${role}" viewBox="0 0 360 390" role="img" aria-label="${label}, обраний образ">
     <ellipse class="hero-shadow" cx="180" cy="362" rx="93" ry="13" fill="#0d101a" opacity=".25"/>
     <g class="hero-body" stroke="${ink}" stroke-width="5" stroke-linecap="round" stroke-linejoin="round">
       ${silhouette[role]}
@@ -61,7 +68,7 @@ function drawQuestHero(d, label, father) {
       <path d="m211 211 27 21 21 23" fill="none" stroke="${coat}" stroke-width="22"/>
       ${tool}
       <path d="m248 250 9-8 14 7 5 11-10 10-13-5Z" fill="${skin}"/>
-      ${!father?`<path d="M127 81Q94 104 111 155l-12 44 32-6 12-34 62-2 18 44 29-14-17-39q13-56-29-69Z" fill="${hair}"/>`:''}
+      ${hairShape}
       <g class="hero-head">
         <path d="M119 113q-17-8-15 13 0 14 18 16m108-31q18-7 18 13-1 16-18 18" fill="${skin}"/>
         <path d="M117 95q11-43 61-43 53 0 59 44l-5 43q-8 43-55 47-47-2-57-43Z" fill="${skin}"/>
@@ -70,6 +77,7 @@ function drawQuestHero(d, label, father) {
         <g class="hero-eyes"><ellipse cx="146" cy="131" rx="13" ry="17" fill="#fff9ed" stroke-width="3"/><ellipse cx="204" cy="130" rx="13" ry="17" fill="#fff9ed" stroke-width="3"/><ellipse cx="150" cy="133" rx="8" ry="12" fill="${eyes}" stroke-width="2"/><ellipse cx="200" cy="132" rx="8" ry="12" fill="${eyes}" stroke-width="2"/><circle cx="151" cy="134" r="4" fill="${ink}" stroke="none"/><circle cx="199" cy="133" r="4" fill="${ink}" stroke="none"/><circle cx="153" cy="127" r="3" fill="white" stroke="none"/><circle cx="202" cy="125" r="3" fill="white" stroke="none"/></g>
         <path d="m177 140-4 7 8 1" fill="none" stroke="#d49275" stroke-width="3"/>
         ${face}${headwear[role]}
+        ${identity==='s'?'<path d="m127 149 4 1m7 2 3 1m67-3 4-1m7-1 3-1" stroke="#c27c6f" stroke-width="3"/>':identity==='m'?'<g fill="none" stroke="#d5aa54" stroke-width="4"><rect x="128" y="116" width="36" height="33" rx="12"/><rect x="187" y="115" width="36" height="33" rx="12"/><path d="M164 128h23"/></g>':''}
       </g>
       ${badge}
     </g>

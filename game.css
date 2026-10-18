@@ -1,5 +1,27 @@
 /* Adventure presentation. Game rules and API contracts live in adventure.js. */
 #retry-save{display:block;margin:8px auto;max-width:calc(100% - 32px)}
+#help{width:40px;height:40px;font-weight:bold;flex-shrink:0}
+.family-journey{padding:20px 0;border-block:1px solid var(--game-line);margin:20px 0}
+.family-journey h2{margin:8px 0;font-size:24px;overflow-wrap:anywhere}
+.family-journey progress{display:block;width:100%;height:20px;accent-color:var(--game-mint)}
+.journey-result{font-weight:bold;color:var(--game-mint)}
+.journey-photo{display:block;width:100%;max-height:260px;object-fit:cover;border-radius:8px}
+.family-journey.compact .journey-photo{max-height:140px}
+.game-help details{padding:18px 0;border-bottom:1px solid var(--game-line)}
+.game-help summary{cursor:pointer;font-weight:bold;line-height:1.5}
+.game-help p{line-height:1.7;white-space:pre-line;overflow-wrap:anywhere}
+.achievement{display:flex;gap:16px;align-items:center;padding:18px 0;border-bottom:1px solid var(--game-line)}
+.achievement>span{font-size:36px;color:var(--game-gold)}
+.achievement h3,.achievement p{margin:6px 0;overflow-wrap:anywhere}
+.big-goal.done{border-color:var(--game-gold);border-width:2px}
+.goal-congratulation{font-size:14px;line-height:1.5;color:var(--game-mint)}
+.big-goal.done .quest-emblem{color:var(--game-gold)}
+@media(prefers-reduced-motion:no-preference){
+  .big-goal.done .quest-emblem{animation:goal-spark .7s ease-out}
+  .hero-art.identity-s .hero-body{animation-delay:-1s}
+  .hero-art.identity-m .hero-body{animation-duration:5s}
+}
+@keyframes goal-spark{0%{transform:scale(.7) rotate(-20deg)}60%{transform:scale(1.3) rotate(10deg)}100%{transform:scale(1)}}
 :root {
   --game-bg: #eef2f8;
   --game-surface: #fff;

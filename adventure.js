@@ -28,7 +28,22 @@ function ranges(today, selected) {
   return { start, previous, previousEnd, completedStart: previous, earlierStart: earlierEnd.slice(0,7) + '-01', earlierEnd };
 }
 function art(d) {
-  return drawQuestHero(d, esc(heroes[d.hero]), char === 'p');
+  return drawQuestHero({...d, identity:char}, esc(heroes[d.hero]), char === 'p');
+}
+function familyJourney(compact=false) {
+  const goals=data.familyGoals || [];
+  const goal=goals.find(g=>g.status==='active' && g.start<=data.today) || goals.find(g=>g.status==='achieved');
+  if(!goal)return compact?'':'<h1>Наша сімейна мрія</h1><p class="empty">Оберімо наступну пригоду разом. Батьки додадуть її до гри.</p>';
+  const events=data.events.filter(e=>e.kind==='quest' && e.details.familyGoal===goal.id);
+  const contribution=c=>events.filter(e=>e.char===c).reduce((sum,e)=>sum+(Number(e.details.familySteps)||0),0);
+  const total=Object.keys(names).reduce((sum,c)=>sum+contribution(c),0), remaining=Math.max(0,goal.target-total);
+  const photo=/^https:\/\//i.test(goal.image)?`<img class="journey-photo" src="${esc(goal.image)}" alt="${esc(goal.name)}" loading="lazy" referrerpolicy="no-referrer">`:'';
+  return `<section class="family-journey ${compact?'compact':''}"><p class="eyebrow">Наша спільна мрія</p><h2>${esc(goal.name)}</h2>${photo}<p class="journey-result">${remaining?`Залишилось ${remaining} сімейних кроків`:'Ми це зробили! Обираємо дату разом.'}</p><progress max="${goal.target}" value="${Math.min(total,goal.target)}" aria-label="Прогрес сімейної цілі"></progress><p>${total} / ${goal.target} кроків · монети залишаються у вас</p>${compact?'':`<h2>Кожен крок важливий</h2>${Object.keys(names).map(c=>`<div class="family-row"><strong>${names[c]}</strong><span>${contribution(c)} кроків у спільну пригоду</span></div>`).join('')}<p class="muted">Перші три справи кожного за день наближають мрію. У подорож їдемо всі. Прогрес не згорає.</p>`}</section>`;
+}
+function achievements() {
+  const completed=questsFor(char).filter(e=>e.key==='goal'||e.key.startsWith('goal:'));
+  if(!completed.length)return '';
+  return `<section class="achievements"><h2>Мої досягнення</h2>${completed.slice().reverse().map(e=>`<article class="achievement ${e.pending?'pending':''}"><span aria-hidden="true">★</span><div><h3>${esc(e.details.name)}</h3><p>${e.pending?'Зберігаємо досягнення…':`Ти це ${char==='p'?'зробив':'зробила'}! · ${esc(e.day)}`}</p></div></article>`).join('')}</section>`;
 }
 function scene(count) {
   return `<svg class="scene" viewBox="0 0 720 250" role="img" aria-label="Сімейний табір, ${count} внесків цього тижня"><path fill="#c5e2d6" d="M0 160Q150 65 300 145T720 100V250H0Z"/><path fill="#91b6a0" d="M0 201Q180 118 370 190T720 155V250H0Z"/><path d="M0 239Q350 179 720 231" stroke="#eee9c8" stroke-width="22" fill="none"/>${count>=4?'<path d="m130 207 80-121 82 121Z" fill="#dfae62"/><path d="m210 86 17 121h65Z" fill="#bd8544"/><path d="m178 207 32-66 30 66Z" fill="#4c6861"/>':'<path d="m130 207 80-121 82 121Z" fill="none" stroke="#718f80" stroke-width="3" stroke-dasharray="8 7"/>'}${count>=8?'<path d="M363 200v-89m-4 0h38" stroke="#657769" stroke-width="7"/><rect x="382" y="108" width="27" height="36" rx="5" fill="#e9ba52"/><rect x="390" y="114" width="11" height="22" fill="#fff4c0"/>':''}${count>=12?'<path d="M472 190h105m-89 0v28m73-28v28" stroke="#6d8175" stroke-width="9"/><path d="M488 175h74" stroke="#bd865a" stroke-width="18"/>':''}${count>=16?'<path d="M80 70q260 50 570-10" stroke="#658574" stroke-width="3"/><path d="m150 80 16 27 13-22m100 8 16 27 13-25m105-3 16 27 13-29m106-10 16 26 13-29" fill="#cc7880"/>':''}<circle cx="606" cy="47" r="22" fill="#f3d980"/></svg>`;
@@ -54,7 +69,7 @@ function render() {
   const d=data.chars[char]; let html='';
   if(view==='today') {
     const extra=d.quests.filter(q=>q.group==='extra');
-    html=intro(d)+`<h2>Твій день</h2>${questList(d.quests.filter(q=>q.group==='daily'),d)}${extra.length?`<h2>Обери свою пригоду</h2>${questList(extra,d)}`:''}${d.quests.some(q=>q.group==='goal')?`<h2>Крок до моєї цілі</h2>${questList(d.quests.filter(q=>q.group==='goal'),d)}`:''}`;
+    html=intro(d)+familyJourney(true)+`<h2>Твій день</h2>${questList(d.quests.filter(q=>q.group==='daily'),d)}${extra.length?`<h2>Обери свою пригоду</h2>${questList(extra,d)}`:''}${d.quests.some(q=>q.group==='goal')?`<h2>Крок до моєї цілі</h2>${questList(d.quests.filter(q=>q.group==='goal'),d)}`:''}`;
   } else if(view==='hero') {
     html=intro(d)+`<h2>Обери персонажа</h2><div class="options hero-choices">${Object.entries(heroes).map(([id,name])=>`<button data-action="profile" data-field="hero" data-key="${id}" aria-pressed="${d.hero===id}">${art({...d,hero:id})}${name}</button>`).join('')}</div><div class="split">`;
     Object.entries(gear).forEach(([field,items])=>{html+=`<section><h2>${{coat:'Одяг',tool:'Спорядження',badge:'Прикраса'}[field]}</h2><div class="options">${items.map(([id,name,level])=>`<button data-action="profile" data-field="${field}" data-key="${id}" aria-pressed="${d[field]===id}" ${d.level<level?'disabled':''}>${field==='coat'?`<span class="swatch" style="background:${{base:'#377d92',mint:'#52a78b',rose:'#cf7180'}[id]}"></span>`:''}${name}<small>${d.level<level?'Рівень '+level:d[field]===id?'Обрано':'Відкрито'}</small></button>`).join('')}</div></section>`;});
@@ -67,24 +82,27 @@ function render() {
     let bars='';for(let date=r.start;date<=data.today;date=shift(date,1)){const n=current.filter(e=>e.day===date).length;bars+=`<div class="bar" style="height:${Math.max(2,n/Math.max(1,...current.map(e=>current.filter(x=>x.day===e.day).length))*120)}px" title="${date}: ${n}" aria-label="${date}: ${n} квестів"></div>`;}
     html=`<h1>Мій шлях</h1><div class="period"><button data-period="week" aria-pressed="${period==='week'}">Тиждень</button><button data-period="month" aria-pressed="${period==='month'}">Місяць</button></div><div class="stats"><div><strong>${s.days}</strong><span>днів з пригодами</span></div><div><strong>${s.count}</strong><span>виконаних справ</span></div><div><strong>${s.xp}</strong><span>нового досвіду</span></div></div><div class="chart" role="group" aria-label="Виконання за днями">${bars}</div><p class="muted">${r.start} — ${data.today}</p><h2>Завершені ${period==='week'?'тижні':'місяці'}</h2><p>${enough?`За останній завершений період: ${a.days} активних днів. За попередній: ${b.days}.`:'Порівняння з’явиться після двох повних періодів спостереження.'}</p><p class="muted">Історія з ${esc(d.started)}. Досвід до оновлення збережено.</p><h2>Останні кроки</h2>${events.slice(-12).reverse().map(e=>`<div class="event"><span>${esc(e.details.name)}</span><small>${e.day} · +${e.xp} XP</small></div>`).join('')||'<p class="empty">Тут буде твоя перша пригода.</p>'}`;
   } else if(view==='family') {
-    const week=startWeek(data.today), events=data.events.filter(e=>e.kind==='quest'&&e.day>=week&&e.day<=data.today);
-    // One contribution per person per day keeps a long task list from dominating.
-    const contributions=new Set(events.map(e=>e.char+e.day)).size;
-    html=`<p class="eyebrow">Пригода тижня · ${week}</p><h1>Наш сімейний табір</h1>${scene(contributions)}<div class="milestones">${[[4,'Намет'],[8,'Світло'],[12,'Місце зустрічі'],[16,'Свято']].map(([n,label])=>`<span class="${contributions>=n?'reached':''}">${contributions>=n?'✓ ':''}${label} · ${n}</span>`).join('')}</div><p>${contributions>=16?'Табір готовий до сімейного вечора!':`${contributions} із 16 внесків до готового табору`}</p><h2>Ми разом</h2>${Object.keys(names).map(c=>`<div class="family-row"><strong>${names[c]}</strong><span>${new Set(events.filter(e=>e.char===c).map(e=>e.day)).size} днів участі</span></div>`).join('')}<p class="muted">Перша виконана справа за день додає один внесок. Новий тиждень — новий табір; досвід героїв залишається.</p>`;
-    const oldWeeks=[...new Set(data.events.filter(e=>e.kind==='quest'&&e.day<week).map(e=>startWeek(e.day)))].sort().reverse();
-    if(oldWeeks.length)html+=`<h2>Минулі пригоди</h2>${oldWeeks.slice(0,8).map(w=>`<div class="event"><span>Табір · ${w}</span><small>${new Set(data.events.filter(e=>e.kind==='quest'&&startWeek(e.day)===w).map(e=>e.char+e.day)).size} внесків</small></div>`).join('')}`;
+    html=familyJourney();
+  } else if(view==='help') {
+    html=`<h1>Як ми граємо?</h1><div class="game-help">${(data.faq||[]).map(f=>`<details><summary>${esc(f.question)}</summary><p>${esc(f.answer)}</p></details>`).join('')||'<p>Питання з’являться після оновлення сервера.</p>'}</div>`;
   } else {
     html=`<h1>Крамниця</h1><p>${d.coins} монет · рівень ${d.level}</p><div class="shop-grid">${data.shop.map(item=>`<article class="item"><span class="reward-icon">${esc(item.icon)}</span><h2>${esc(item.name)}</h2><p>${item.xp_cost} монет</p><button data-action="buy" data-key="${item.id}" ${d.coins<item.xp_cost?'disabled':''}>Обрати</button></article>`).join('')}</div><h2>Нагороди за рівні</h2><div class="shop-grid">${[3,5,8,10].map((level,i)=>`<article class="item"><h3>${esc(rewardNames[char][i])}</h3><p>Рівень ${level}</p><button data-action="reward" data-key="${i}" ${d.rewards[i]||d.level<level?'disabled':''}>${d.rewards[i]?'Запит збережено':'Отримати'}</button></article>`).join('')}</div><h2>Запити на нагороди</h2>`;
     const requests=data.events.filter(e=>['purchase','reward'].includes(e.kind)&&(['m','p'].includes(char)||e.char===char||(e.details.participants||[]).includes(char)));
     html+=requests.slice(-20).reverse().map(e=>{const done=data.events.some(x=>x.kind==='fulfilled'&&x.key===e.id);const people=e.details.participants||[e.char];return `<div class="event"><span>${esc(people.map(c=>names[c]).join(', '))}: ${esc(e.details.name)}${e.details.charges?`<br><small>${e.details.planned?'Заплановано · без списання':people.map(c=>`${esc(names[c])}: ${e.details.charges[c]} монет`).join(' · ')}</small>`:''}<br><small>${done?'Видано':'Очікує на дорослого'}</small></span>${!done&&['m','p'].includes(char)?`<button data-action="fulfill" data-key="${esc(e.id)}">Видано</button>`:''}</div>`;}).join('')||'<p class="empty">Запитів поки немає.</p>';
   }
+  if(view==='history')html=achievements()+html;
   $('main').innerHTML=html;
   $('main').dataset.view=view;
   if(view==='today') {
     $('main').querySelectorAll('h2').forEach(h=>{if(h.textContent==='Крок до моєї цілі')h.textContent='Моя велика ціль';});
     for(const q of d.quests.filter(q=>q.group==='goal')) {
       const button=[...$('main').querySelectorAll('[data-action="quest"]')].find(b=>b.dataset.key===q.id);
-      if(button)button.closest('.quest').querySelector('small').textContent=d.done.includes(q.id)?'Ціль досягнута':`За досягнення: +${q.xp} XP · +${q.xp} монет`;
+      if(button){
+        const row=button.closest('.quest');
+        row.classList.add('big-goal');
+        row.querySelector('small').textContent=d.done.includes(q.id)?'Ціль досягнута':`За досягнення: +${q.xp} XP · +${q.xp} монет`;
+        if(d.done.includes(q.id))row.querySelector('.body').insertAdjacentHTML('beforeend','<p class="goal-congratulation">Чудова робота! Це досягнення залишиться у твоїй історії.</p>');
+      }
     }
   }
   if(view==='shop')$('main').querySelectorAll('[data-action="buy"]').forEach(b=>{
@@ -315,6 +333,7 @@ $('theme').onclick = () => {
 };
 renderTheme();
 $('refresh').onclick=()=>{if(!busy)sync();};
+$('help').onclick=()=>{view='help';render();};
 window.addEventListener('online',()=>{if(!busy)sync();});window.addEventListener('offline',()=>{fresh=false;$('connection').textContent='Немає інтернету. Виконання буде доступне після підключення.';render();});
 document.addEventListener('visibilitychange',()=>{if(!document.hidden&&!busy)sync();});setInterval(()=>{if(!document.hidden&&!busy)sync();},60000);
 let installPrompt;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();installPrompt=e;$('install').hidden=false;});$('install').onclick=async()=>{if(installPrompt){await installPrompt.prompt();installPrompt=null;$('install').hidden=true;}};

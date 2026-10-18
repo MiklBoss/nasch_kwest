@@ -3,6 +3,8 @@ if (new URLSearchParams(location.search).get('demo') === '1') {
   const today = new Date().toISOString().slice(0,10);
   const questNames = ['10 хвилин порядку','Почати уроки в обраний час','Самостійна добра справа','Намалювати щось нове','Приготувати щось разом','20 хвилин читання','Пограти нову мелодію','Вивчити п’ять англійських слів','Допомогти доглянути рослини'];
   const sample = {version:'familyquest-adventure-3',today,chars:{},cosmetics:{},events:[],shop:[{id:1,name:'Фільм на вибір',xp_cost:50,icon:'🎬'},{id:2,name:'Піца',xp_cost:80,icon:'🍕'},{id:3,name:'Похід у кафе-морозиво',xp_cost:20,icon:'🍨'}]};
+  sample.familyGoals=[{id:'demo-trip',name:'Наш день біля моря',target:120,start:'2026-01-01',status:'active',image:''}];
+  sample.faq=[{question:'Як наблизити сімейну подорож?',answer:'Перші три справи кожного за день дають по одному сімейному кроку. Монети залишаються у тебе. У подорож їдемо всі!'},{question:'А якщо я пропущу день?',answer:'Продовжуй, коли повернешся. Досвід та сімейні кроки не згорають.'},{question:'Що означає «Зберігається»?',answer:'Дочекайся підтвердження сервера перед закриттям гри.'}];
   ['a','s','m','p'].forEach((c,i)=>{
     sample.chars[c]={xp:720+i*40,coins:140+i*20,level:4,started:'2026-06-01',hero:['scout','builder','mage','keeper'][i],coat:['mint','rose','base','mint'][i],tool:'lantern',badge:'star',title:'',done:[],rewards:[],quests:questNames.map((name,j)=>({id:(j<3?'daily:':'extra:')+j,name,xp:j<2?10:20,group:j<3?'daily':'extra'}))};
     sample.chars[c].quests.push({id:'goal:demo',name:c==='p'?'Подивитися фільм мовою оригіналу':'Досягнути своєї навчальної цілі',xp:50,group:'goal'});
@@ -17,6 +19,7 @@ if (new URLSearchParams(location.search).get('demo') === '1') {
     let kind=p.action,key=p.key,xp=0,coins=0,details={};
     if(p.action==='quest'){if(d.done.includes(key))return {ok:true,duplicate:true};const q=d.quests.find(q=>q.id===key);xp=q.xp;coins=q.xp;d.done.push(key);details.name=q.name;}
     if(p.action==='profile'){d[p.field]=p.value;details={[p.field]:p.value};}
+    if(p.action==='quest' && sample.events.filter(e=>e.char===p.char&&e.day===today&&e.details.familyGoal==='demo-trip').length<3){details.familyGoal='demo-trip';details.familySteps=1;}
     if(p.action==='buy'){
       const item=sample.shop.find(i=>String(i.id)===key),people=p.participants||[p.char];
       if(p.planned&&!['m','p'].includes(p.char))return {ok:false,error:'Потрібен профіль дорослого'};
